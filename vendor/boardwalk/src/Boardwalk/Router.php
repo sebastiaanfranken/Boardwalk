@@ -132,10 +132,27 @@ class Router
 			if(method_exists($this->controller, $method))
 			{
 				$instance = new $this->controller;	
+
+				/*
+				 * If the controller has a before method call it before the main function
+				 */
+				if(method_exists($instance, 'before'))
+				{
+					$instance->before();
+				}
+
 				$fn = call_user_func_array(
 					array($instance, $method),
 					$this->arguments
 				);
+
+				/**
+				 * If the controller has an after method call if after now
+				 */
+				if(method_exists($instance, 'after'))
+				{
+					$instance->after();
+				}
 
 				if(is_string($fn))
 				{
