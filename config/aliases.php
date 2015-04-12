@@ -1,4 +1,4 @@
 <?php
 return array(
-	'View' => 'SebastiaanFranken\\View',
+	'View' => 'Boardwalk\\View',
 );
