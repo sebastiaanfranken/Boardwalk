@@ -13,6 +13,6 @@ class Index extends Controller
 		$log->timestamp = timestamp();
 		$log->create();
 
-		return 'Hallo bezoeker!';
+		return (new \Boardwalk\View('index'))->make();
 	}
 }

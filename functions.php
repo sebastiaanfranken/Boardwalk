@@ -32,7 +32,7 @@ function root()
  */
 function app()
 {
-	return root() . 'app' . DIRECTORY_SEPARATOR;
+	return root() . 'App' . DIRECTORY_SEPARATOR;
 }
 
 /**
