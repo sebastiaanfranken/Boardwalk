@@ -61,7 +61,8 @@ function config()
  * @param string $format The format. Has to be a valid DateTime format
  * @return string
  */
-function timestamp($format = 'Y-m-d')
+function timestamp($format = 'Y-m-d', $stamp = 'now')
 {
-	return (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->format($format);
+	$timezone = ini_get('date.timezone');
+	return (new \DateTime($stamp, new \DateTimeZone($timezone)))->format($format);
 }
