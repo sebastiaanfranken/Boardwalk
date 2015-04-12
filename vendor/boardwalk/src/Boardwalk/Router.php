@@ -157,8 +157,25 @@ class Router
 		}
 	}
 
-	public function __toString()
+	/**
+	 * Returns the output of this class, which is the response a route gives
+	 *
+	 * @return string
+	 */
+	public function response()
 	{
 		return $this->output;
+	}
+
+	/**
+	 * When the class is printed as a string call the respone function to output
+	 * something sane
+	 *
+	 * @return string
+	 * @see response()
+	 */
+	public function __toString()
+	{
+		return $this->response();
 	}
 }

@@ -56,4 +56,4 @@ $exceptionHandler = new Boardwalk\ExceptionHandler();
  * Our router handles URL's nicely
  */
 $router = new Boardwalk\Router();
-print $router;
+print $router->response();
