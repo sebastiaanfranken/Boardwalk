@@ -10,7 +10,7 @@ class Index extends Controller
 		$log = new \App\Models\Log();
 		$log->ip = $_SERVER['REMOTE_ADDR'];
 		$log->url = $_SERVER['REQUEST_URI'];
-		$log->timestamp = (new \DateTime('now', new \DateTimeZone('Europe/Amsterdam')))->format('Y-m-d');
+		$log->timestamp = timestamp();
 		$log->create();
 
 		return 'Hallo bezoeker!';
