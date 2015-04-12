@@ -9,6 +9,8 @@
 
 namespace Boardwalk;
 
+use Exception;
+
 class View
 {
 	/**
@@ -39,6 +41,11 @@ class View
 	{
 		$this->viewfile = app() . 'Views' . DIRECTORY_SEPARATOR . $viewfile . $this->suffix;
 		$this->variables = $variables;
+
+		if(!file_exists($this->viewfile))
+		{
+			throw new Exception('The view file <em>' . $this->viewfile . '</em> does not exist');
+		}
 	}
 
 	/**
