@@ -7,9 +7,9 @@ class AliasManager
 {
 	public function __construct()
 	{
-		if(file_exists(root() . 'aliases.php'))
+		if(file_exists(config() . 'aliases.php'))
 		{
-			$aliases = require(root() . 'aliases.php');
+			$aliases = require(config() . 'aliases.php');
 
 			foreach($aliases as $alias => $class)
 			{
@@ -18,7 +18,7 @@ class AliasManager
 		}
 		else
 		{
-			throw new Exception('The file <em>' . root() . 'aliases.php</em> could not be found');
+			throw new Exception('The file <em>' . config() . 'aliases.php</em> could not be found');
 		}
 	}
 

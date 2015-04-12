@@ -78,13 +78,13 @@ class Router
 	 */
 	public function __construct()
 	{
-		if(file_exists(root() . 'routes.php'))
+		if(file_exists(config() . 'routes.php'))
 		{
-			$routes = include root() . 'routes.php';
+			$routes = include config() . 'routes.php';
 		}
 		else
 		{
-			throw new Exception('The file <em>' . root() . 'routes.php</em> does not exist');
+			throw new Exception('The file <em>' . config() . 'routes.php</em> does not exist');
 		}
 
 		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))

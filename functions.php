@@ -23,3 +23,8 @@ function vendor()
 {
 	return root() . 'vendor' . DIRECTORY_SEPARATOR;
 }
+
+function config()
+{
+	return root() . 'config' . DIRECTORY_SEPARATOR;
+}
