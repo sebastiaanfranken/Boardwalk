@@ -45,7 +45,7 @@ class View
 	 */
 	public function __construct($viewfile, array $variables = array())
 	{
-		$this->viewfile = app() . 'Views' . DIRECTORY_SEPARATOR . $viewfile . $this->setSuffix();
+		$this->viewfile = app() . 'Views' . DIRECTORY_SEPARATOR . $viewfile . $this->suffix;
 		$this->variables = $variables;
 
 		if(!file_exists($this->viewfile))
@@ -180,7 +180,7 @@ class View
 		{
 			$this->validSuffixes[] = $suffix;
 		}
-		
+
 		return $this;
 	}
 }
