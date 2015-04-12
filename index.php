@@ -44,8 +44,12 @@ spl_autoload_register(function($class) {
 /*
  * Register our exception handler to enable pretty printing of exceptions
  */
-//$exceptionHandler = new SebastiaanFranken\ExceptionHandler();
 $exceptionHandler = new Boardwalk\ExceptionHandler();
+
+/*
+ * Check if the server meets some requirements
+ */
+Boardwalk\Bootstrapper::checkServerRequirements();
 
 /*
  * Class alias manager
