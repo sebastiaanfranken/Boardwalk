@@ -10,6 +10,7 @@
 namespace Boardwalk;
 
 use Exception;
+use Boardwalk\Exceptions\FileNotFoundException;
 
 class View
 {
@@ -50,7 +51,7 @@ class View
 
 		if(!file_exists($this->viewfile))
 		{
-			throw new Exception('The view file <em>' . $this->viewfile . '</em> does not exist');
+			throw new FileNotFoundException($this->viewfile);
 		}
 	}
 

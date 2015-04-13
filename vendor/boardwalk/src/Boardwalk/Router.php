@@ -10,7 +10,6 @@
 namespace Boardwalk;
 
 use Exception;
-use Boardwalk\Exceptions\FileNotFoundException;
 
 class Router
 {
