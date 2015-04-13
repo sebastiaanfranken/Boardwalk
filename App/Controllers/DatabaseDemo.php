@@ -27,6 +27,7 @@ class DatabaseDemo extends Controller
 		$log->delete('url', '=', '/database-demo');
 		$log->close();
 
-		return header('Location: /database-demo');
+		//return header('Location: /database-demo');
+		return header('Location: ' . url('DatabaseDemo', 'getIndex'));
 	}
 }
