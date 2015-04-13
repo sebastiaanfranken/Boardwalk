@@ -9,13 +9,15 @@
 	</head>
 
 	<body>
-		<form method="post" action="text-demo">
-			<textarea name="text" cols="82" rows="24"></textarea><br />
-			<input type="submit" name="process" value="Verwerk" />
-		</form>
+		<main>
+			<h1>Tekst demo</h1>
 
-		<?php if(isset($result)) : ?>
-		<main><?php print $result;?></main>
-		<?php endif;?>
+			<form method="post" action="text-demo">
+				<textarea name="text" cols="82" rows="24"></textarea><br />
+				<input type="submit" name="process" value="Verwerk" />
+			</form>
+
+			<?php if(isset($result)) : print $result; endif;?>
+		</main>
 	</body>
 </html>
