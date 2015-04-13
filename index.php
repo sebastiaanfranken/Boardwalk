@@ -51,6 +51,8 @@ $exceptionHandler = new Boardwalk\ExceptionHandler();
  */
 Boardwalk\Bootstrapper::checkServerRequirements();
 
+print pr(public_assets());
+
 /*
  * Class alias manager
  */
