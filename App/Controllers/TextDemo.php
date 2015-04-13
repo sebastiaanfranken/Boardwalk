@@ -13,7 +13,7 @@ class TextDemo extends Controller
 		$variables = array(
 			'home' => url('index')
 		);
-		$view = new View('text-demo/index');
+		$view = new View('text-demo/index', $variables);
 
 		return $view->make();
 	}
