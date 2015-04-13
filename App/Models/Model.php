@@ -10,6 +10,7 @@
 namespace App\Models;
 
 use Exception;
+use InvalidArgumentException;
 use mysqli;
 
 abstract class Model
@@ -160,6 +161,67 @@ abstract class Model
 		else
 		{
 			throw new Exception('No attributes passed to the model');
+		}
+	}
+
+	/**
+	 * The update method takes the attributes defined in $attributes and builds an update query with them,
+	 * executes it and returns the result
+	 *
+	 * @param array $where The where clause (3 part array)
+	 * @return mixed
+	 */
+	public function update($whereKey, $whereOperator, $whereValue, $limitStart = null, $limitEnd = null)
+	{
+		$query = 'UPDATE `' . $this->table . '` SET ';
+
+		if(count($this->attributes) > 0)
+		{
+			foreach($this->attributes as $key => $value)
+			{
+				$key = $this->secure($key);
+				$value = $this->secure($value);
+				$query .= "`" . $key . "` = '" . $value . "', ";
+			}
+
+			$query = rtrim(rtrim($query), ',') . ' WHERE `' . $whereKey . '` ' . $whereOperator . " '" . $whereValue . "' ";
+
+			if(!is_null($limitStart) && is_int($limitStart) && !is_null($limitEnd) && is_int($limitEnd))
+			{
+				if(is_int($limitStart) && is_int($limitEnd))
+				{
+					$query .= 'LIMIT ' . $limitStart . ', ' . $limitEnd;
+				}
+				else
+				{
+					throw new InvalidArgumentException(__METHOD__ . ' expects integers for limitStart and limitEnd but was given a ' . gettype($limitStart) . ' and a ' . gettype($limitEnd));
+				}
+			}
+			
+			if(!is_null($limitStart) && is_null($limitEnd))
+			{
+				if(is_int($limitStart))
+				{
+					$query .= 'LIMIT ' . $limitStart;
+				}
+				else
+				{
+					throw new InvalidArgumentException(__METHOD__ . ' expects an interger for limitStart but was given a ' . gettype($limitStart));
+				}
+			}
+			
+			$result = $this->connection->query($query);
+
+			if(!$result)
+			{
+				throw new Exception($this->connection->error, $this->connection->errno);
+			}
+
+			return $result;
+		}
+		else
+		{
+			throw new Exception($this->connection->error, $this->connection->errno);
 		}
 	}
 }

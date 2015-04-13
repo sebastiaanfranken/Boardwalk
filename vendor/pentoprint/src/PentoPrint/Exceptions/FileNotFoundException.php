@@ -1,4 +1,12 @@
 <?php
+
+/**
+ * A custom exception to handle missing files, based on a default SPL exception
+ *
+ * @package PentoPrint\Exceptions;
+ * @author Sebastiaan Franken <sebastiaan@sebastiaanfranken.nl>
+ */
+
 namespace PentoPrint\Exceptions;
 
 use Exception;
