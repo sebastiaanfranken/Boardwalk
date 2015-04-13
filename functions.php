@@ -90,24 +90,25 @@ function timestamp($format = 'Y-m-d', $stamp = 'now')
 /**
  * Generates a link
  *
- * @param array $parts The URL parts
+ * @param string $controller The controller
+ * @param string $method The method
  * @return string
  */
-function url(array $parts)
+function url($controller, $method = 'getIndex')
 {
 	$routes = include config() . 'routes.php';
 
-	preg_match('/[A-Z]/', lcfirst($parts[0]), $controllerMatches);
-	$controllerMatches = end($controllerMatches);
-	$controller = str_replace($controllerMatches, '-' . strtolower($controllerMatches), $parts[0]);
-	$controller = strtolower($controller);
+	preg_match('/[A-Z]/', lcfirst($controller), $matches);
+	$match = end($matches);
+	$returnController = str_replace($match, '-' . strtolower($match), $controller);
+	$returnController = strtolower($returnController);
 
-	$method = strtolower(str_replace(array('get', 'post'), '', $parts[1]));
+	$method = strtolower(str_replace(array('get', 'post'), '', $method));
 
 	if($method == 'index')
 	{
-		return '/' . $controller . '/';
+		return '/' . $returnController . '/';
 	}
-	
-	return '/' . $controller . '/' . $method . '/';
+
+	return '/' . $returnController . '/' . $method . '/';
 }

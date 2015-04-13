@@ -13,6 +13,11 @@ class Index extends Controller
 		$log->timestamp = timestamp('Y-m-d H:i:s');
 		$log->create();
 
-		return (new \Boardwalk\View('index'))->make();
+		$attributes = array(
+			'textDemoLink' => url('TextDemo', 'getIndex')
+		);
+
+		$view = new \Boardwalk\View('index', $attributes);
+		return $view->make();
 	}
 }
