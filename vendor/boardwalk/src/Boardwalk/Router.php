@@ -10,7 +10,7 @@
 namespace Boardwalk;
 
 use Exception;
-use PentoPrint\Exceptions\FileNotFoundException;
+use Boardwalk\Exceptions\FileNotFoundException;
 
 class Router
 {
