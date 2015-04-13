@@ -50,18 +50,6 @@ class Router
 	protected $arguments;
 
 	/**
-	 * @var string The "local" controller name, without any prefixes or other edits
-	 * @access protected
-	 */
-	protected $routeController;
-
-	/**
-	 * @var string The "local" method, without any edits
-	 * @access protected
-	 */
-	protected $routeMethod;
-
-	/**
 	 * @var string The output from the controller instance (called in the constructor)
 	 * @access protected
 	 */
@@ -107,11 +95,7 @@ class Router
 				$controller = $routes[$parts[0]][$method][$this->requestMethod][0];
 
 				$this->controller = $this->controllerPrefix . $controller;
-				$this->routeController = strtolower($controller);
-
 				$this->method = $this->requestMethod . ucfirst($method);
-				$this->routeMethod = strtolower(str_replace($this->requestMethod, '', $this->method));
-
 				$this->arguments = (count($parts) == 3) ? $parts[3] : array();
 			}
 			else
@@ -120,11 +104,7 @@ class Router
 				$method = $routes['index'][$this->requestMethod][1];
 
 				$this->controller = $this->controllerPrefix . $controller;
-				$this->routeController = strtolower($controller);
-
 				$this->method = $method;
-				$this->routeMethod = strtolower(str_replace($this->requestMethod, '', $this->method));
-
 				$this->arguments = array();
 			}
 

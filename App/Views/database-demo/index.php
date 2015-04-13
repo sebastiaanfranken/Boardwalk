@@ -11,7 +11,38 @@
 	<body>
 		<main>
 			<h1>Database demo</h1>
-			<p>Helaas is deze demo nog niet operationeel. <a href="<?php print url('index');?>">Ga terug</a>.</p>
+
+			<form method="post" action="<?php print url('DatabaseDemo', 'postIndex', true);?>">
+				<input type="submit" name="delete" value="Wis bepaalde records" />
+			</form>
+
+			<table cellpadding="0" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>IP</th>
+						<th>URL</th>
+						<th>Verzoektype</th>
+						<th>Tijd</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<?php foreach($loglines as $key => $logline) : ?>
+					<tr>
+						<td><?php print $logline->id;?></td>
+						<td><?php print $logline->ip;?></td>
+						<td><?php print $logline->url;?></td>
+						<td><?php print $logline->request_method;?></td>
+						<td><?php print timestamp('d-m-Y H:i:s', $logline->timestamp);?></td>
+					</tr>
+					<?php endforeach;?>
+				</tbody>
+			</table>
+
+			<footer>
+				<p><a href="<?php print url('index');?>">Terug</a></p>
+			</footer>
 		</main>
 	</body>
 </html>

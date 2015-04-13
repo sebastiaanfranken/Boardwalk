@@ -48,3 +48,19 @@ main footer {
 	padding-top: 6px;
 	border-top: 1px solid #ddd;
 }
+
+main table {
+	border: 1px solid #ddd;
+	width: 100%;
+}
+
+main table thead tr th,
+main table tbody tr td {
+	width: 20%;
+	border-bottom: 1px solid #ddd;
+	padding: 5px;
+}
+
+main table tbody tr:last-of-type td {
+	border-bottom: 0;
+}

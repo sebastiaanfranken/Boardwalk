@@ -8,12 +8,25 @@ class DatabaseDemo extends Controller
 {
 	public function getIndex()
 	{
-		$view = new View('database-demo/index');
+		$log = new \App\Models\Log();
+		$variables = array(
+			'loglines' => $log->fetchAll()
+		);
+
+		$view = new View('database-demo/index', $variables);
 		return $view->make();
 	}
 
 	public function postIndex()
 	{
+		$log = new \App\Models\Log();
+		$log->delete('request_method', '=', 'POST');
+		$log->close();
 
+		$log = new \App\Models\Log();
+		$log->delete('url', '=', '/database-demo');
+		$log->close();
+
+		return header('Location: /database-demo');
 	}
 }

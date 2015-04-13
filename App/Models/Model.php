@@ -63,6 +63,14 @@ abstract class Model
 	}
 
 	/**
+	 * Closes the connection on destruction of the object
+	 */
+	public function __destruct()
+	{
+		$this->connection->close();
+	}
+
+	/**
 	 * Runs a few security related functions over input
 	 *
 	 * @param string $input The base query to parse
@@ -108,6 +116,16 @@ abstract class Model
 	}
 
 	/**
+	 * Closes the current connection to the DB
+	 *
+	 * @return mixed
+	 */
+	public function close()
+	{
+		return $this->connection->close();
+	}
+
+	/**
 	 * A getter for the table variable
 	 *
 	 * @return string
@@ -127,6 +145,44 @@ abstract class Model
 	{
 		$this->table = (string)$table;
 		return $this;
+	}
+
+	/**
+	 * Fetches all rows from a table and returns the mysqli_result
+	 *
+	 * @param bool $distinct use SELECT DISTINCT
+	 * @return mysqli_result
+	 */
+	private function fetch()
+	{
+		$query = 'SELECT * FROM `' . $this->table . '`';
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new Exception($this->connection->error, $this->connection->errno);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Fetches all rows from a table and returns them
+	 *
+	 * @see fetch()
+	 * @return array
+	 */
+	public function fetchAll()
+	{
+		$resultset = $this->fetch();
+		$output = array();
+
+		while($row = $resultset->fetch_assoc())
+		{
+			$output[] = (object)$row;
+		}
+
+		return $output;
 	}
 
 	/**
@@ -168,7 +224,9 @@ abstract class Model
 	 * The update method takes the attributes defined in $attributes and builds an update query with them,
 	 * executes it and returns the result
 	 *
-	 * @param array $where The where clause (3 part array)
+	 * @param string $whereKey The 1st part of the WHERE clause
+	 * @param string $whereOperator The 2nd part of the WHERE clause (the operator)
+	 * @param string $whereValue The 3rd part of the WHERE clause
 	 * @return mixed
 	 */
 	public function update($whereKey, $whereOperator, $whereValue, $limitStart = null, $limitEnd = null)
@@ -223,5 +281,59 @@ abstract class Model
 		{
 			throw new Exception($this->connection->error, $this->connection->errno);
 		}
+	}
+
+	/**
+	 * This deletes everything from $this->table 
+	 *
+	 * @param string $whereKey The 1st part of the WHERE clause
+	 * @param string $whereOperator The 2nd part of the WHERE clause (the operator)
+	 * @param string $whereValue The 3rd part of the WHERE clause
+	 * @param int $limit The limit, optional
+	 * @throws Exception
+	 * @return mysqli_result
+	 */
+	public function delete($whereKey, $whereOperator, $whereValue, $limit = null)
+	{
+		$raw = "DELETE FROM `%s` WHERE `%s` %s '%s' ";
+
+		if(!is_null($limit))
+		{
+			$raw .= 'LIMIT %s';
+			$limit = $this->secure($limit);
+		}
+
+		$table = $this->secure($this->table);
+		$whereKey = $this->secure($whereKey);
+		$whereOperator = $this->secure($whereOperator);
+		$whereValue = $this->secure($whereValue);
+		$query = is_null($limit) ? sprintf($raw, $table, $whereKey, $whereOperator, $whereValue) : sprintf($raw, $table, $whereKey, $whereOperator, $whereValue, $limit);
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new Exception($this->connection->error, $this->connection->errno);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Deletes _all_ records from $this->table
+	 *
+	 * @throws Exception
+	 * @return mysqli_result
+	 */
+	public function deleteAll()
+	{
+		$query = 'DELETE FROM `' . $this->secure($this->table) . '`';
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new Exception($this->connection->error, $this->connection->errno);
+		}
+
+		return $result;
 	}
 }

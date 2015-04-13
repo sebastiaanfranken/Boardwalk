@@ -92,9 +92,10 @@ function timestamp($format = 'Y-m-d', $stamp = 'now')
  *
  * @param string $controller The controller
  * @param string $method The method
+ * @param bool $removeTrailingSlash Removes the trailing slash
  * @return string
  */
-function url($controller, $method = 'getIndex')
+function url($controller, $method = 'getIndex', $removeTrailingSlash = false)
 {
 	if($controller == 'index' && $method == 'getIndex')
 	{
@@ -113,13 +114,16 @@ function url($controller, $method = 'getIndex')
 		$returnController = str_replace($match, '-' . strtolower($match), lcfirst($controller));
 		$returnController = strtolower($returnController);
 
+		$originalMethod = $method;
 		$method = strtolower(str_replace(array('get', 'post'), '', $method));
+		$requestMethod = str_replace($method, '', strtolower($originalMethod));
 
-		if($method == 'index')
+		if($method == 'index' && $requestMethod == 'get')
 		{
 			return '/' . $returnController . '/';
 		}
 
-		return '/' . $returnController . '/' . $method . '/';
+		$url = '/'. $returnController . '/' . $method . '/';
+		return $removeTrailingSlash ? rtrim($url, '/') : $url;
 	}
 }
