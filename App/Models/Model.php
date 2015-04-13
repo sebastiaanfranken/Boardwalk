@@ -116,6 +116,23 @@ abstract class Model
 	}
 
 	/**
+	 * Rekeys a table with a lot of "empty" rows.
+	 * DO NOT USE THIS LIGHTLY!
+	 *
+	 * @return Model
+	 */
+	public function rekey($idcolumn = 'id')
+	{
+		$table = $this->secure($this->table);
+		$idcolumn = $this->secure($idcolumn);
+		$this->connection->query('SET @count = 0');
+		$this->connection->query('UPDATE `' . $table . '` SET `' . $table . '`.`' . $idcolumn . '` = @count := @count + 1');
+		$this->connection->query('ALTER TABLE `' . $table . '` AUTO_INCREMENT = 1');
+
+		return $this;
+	}
+
+	/**
 	 * Closes the current connection to the DB
 	 *
 	 * @return mixed

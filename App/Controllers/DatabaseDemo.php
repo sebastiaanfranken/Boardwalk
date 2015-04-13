@@ -30,4 +30,12 @@ class DatabaseDemo extends Controller
 		//return header('Location: /database-demo');
 		return header('Location: ' . url('DatabaseDemo', 'getIndex'));
 	}
+
+	public function getRekey()
+	{
+		$log = new \App\Models\Log();
+		$log->rekey();
+
+		return header('Location: ' . url('DatabaseDemo', 'getIndex'));
+	}
 }

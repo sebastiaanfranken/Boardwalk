@@ -14,6 +14,7 @@
 
 			<form method="post" action="<?php print url('DatabaseDemo', 'postIndex', true);?>">
 				<input type="submit" name="delete" value="Wis bepaalde records" />
+				<a href="<?php print url('DatabaseDemo', 'getRekey');?>">Stel IDs opnieuw in</a>
 			</form>
 
 			<table cellpadding="0" cellspacing="0" border="0">

@@ -13,6 +13,9 @@ return array(
 		'index' => array(
 			'get' => array('DatabaseDemo', 'getIndex'),
 			'post' => array('DatabaseDemo', 'postIndex')
+		),
+		'rekey' => array(
+			'get' => array('DatabaseDemo', 'getRekey')
 		)
 	)
 );
