@@ -14,6 +14,7 @@
 			<p>Het werkt! Nu is het tijd om <em>coole dingen</em> te gaan bouwen. Gebruik de links hieronder om demo's van het systeem te bekijken.</p>
 			<ul>
 				<li><a href="<?php print $textDemoLink;?>">Tekst demo</a></li>
+				<li><a href="<?php print $databaseDemoLink;?>">Database demo</a></li>
 			</ul>
 		</main>
 	</body>

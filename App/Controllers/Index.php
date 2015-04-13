@@ -8,7 +8,7 @@ class Index extends Controller
 	public function getIndex()
 	{
 		$dontlog = array('::1', '127.0.0.1');
-		
+
 		if(!in_array($_SERVER['REMOTE_ADDR'], $dontlog))
 		{
 			$log = new \App\Models\Log();
@@ -19,7 +19,8 @@ class Index extends Controller
 		}
 
 		$attributes = array(
-			'textDemoLink' => url('TextDemo', 'getIndex')
+			'textDemoLink' => url('TextDemo', 'getIndex'),
+			'databaseDemoLink' => url('DatabaseDemo', 'getIndex')
 		);
 
 		$view = new \Boardwalk\View('index', $attributes);

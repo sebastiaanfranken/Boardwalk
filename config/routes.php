@@ -8,5 +8,11 @@ return array(
 			'get' => array('TextDemo', 'getIndex'),
 			'post' => array('TextDemo', 'postIndex')
 		)
+	),
+	'database-demo' => array(
+		'index' => array(
+			'get' => array('DatabaseDemo', 'getIndex'),
+			'post' => array('DatabaseDemo', 'postIndex')
+		)
 	)
 );

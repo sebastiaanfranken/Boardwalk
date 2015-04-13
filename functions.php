@@ -110,7 +110,7 @@ function url($controller, $method = 'getIndex')
 
 		preg_match('/[A-Z]/', lcfirst($controller), $matches);
 		$match = end($matches);
-		$returnController = str_replace($match, '-' . strtolower($match), $controller);
+		$returnController = str_replace($match, '-' . strtolower($match), lcfirst($controller));
 		$returnController = strtolower($returnController);
 
 		$method = strtolower(str_replace(array('get', 'post'), '', $method));
