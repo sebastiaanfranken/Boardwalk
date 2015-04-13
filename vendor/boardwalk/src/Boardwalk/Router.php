@@ -87,10 +87,12 @@ class Router
 			throw new Exception('The file <em>' . config() . 'routes.php</em> does not exist');
 		}
 
-		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
+		#if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
+		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['QUERY_STRING']))
 		{
 			$this->requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
-			$this->requestUri = $_SERVER['REQUEST_URI'];
+			//$this->requestUri = $_SERVER['REQUEST_URI'];
+			$this->requestUri = $_SERVER['QUERY_STRING'];
 			$parts = explode('/', $this->requestUri);
 			$parts = array_values(array_filter($parts));
 

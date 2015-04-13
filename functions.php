@@ -56,6 +56,26 @@ function config()
 }
 
 /**
+ * Gets the assets folder for the application
+ *
+ * @return string
+ */
+function assets()
+{
+	return root() . 'assets' . DIRECTORY_SEPARATOR;
+}
+
+/**
+ * Gets the public assets folder for the application, from the front end side
+ *
+ * @return string
+ */
+function public_assets()
+{
+	return rtrim(rtrim($_SERVER['REQUEST_URI']), '/') . '/assets/';
+}
+
+/**
  * Generates a PHP timestamp
  *
  * @param string $format The format. Has to be a valid DateTime format
