@@ -18,6 +18,10 @@
 			</form>
 
 			<?php if(isset($result)) : print $result; endif;?>
+
+			<footer>
+				<p><a href="<?php print $home;?>">Terug</a></p>
+			</footer>
 		</main>
 	</body>
 </html>

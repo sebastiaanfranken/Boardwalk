@@ -96,19 +96,30 @@ function timestamp($format = 'Y-m-d', $stamp = 'now')
  */
 function url($controller, $method = 'getIndex')
 {
-	$routes = include config() . 'routes.php';
-
-	preg_match('/[A-Z]/', lcfirst($controller), $matches);
-	$match = end($matches);
-	$returnController = str_replace($match, '-' . strtolower($match), $controller);
-	$returnController = strtolower($returnController);
-
-	$method = strtolower(str_replace(array('get', 'post'), '', $method));
-
-	if($method == 'index')
+	if($controller == 'index' && $method == 'getIndex')
 	{
-		return '/' . $returnController . '/';
+		return '/';
 	}
+	elseif($controller == 'index' && $method != 'getIndex')
+	{
+		throw new Exception('Impossible link detected');
+	}
+	else
+	{
+		$routes = include config() . 'routes.php';
 
-	return '/' . $returnController . '/' . $method . '/';
+		preg_match('/[A-Z]/', lcfirst($controller), $matches);
+		$match = end($matches);
+		$returnController = str_replace($match, '-' . strtolower($match), $controller);
+		$returnController = strtolower($returnController);
+
+		$method = strtolower(str_replace(array('get', 'post'), '', $method));
+
+		if($method == 'index')
+		{
+			return '/' . $returnController . '/';
+		}
+
+		return '/' . $returnController . '/' . $method . '/';
+	}
 }

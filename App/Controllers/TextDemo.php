@@ -3,18 +3,29 @@ namespace App\Controllers;
 
 use App\Controllers\Controller;
 use Boardwalk\Utilities\Text;
+use Boardwalk\View;
 
 class TextDemo extends Controller
 {
 	public function getIndex()
 	{
-		return (new \Boardwalk\View('text-demo/index'))->make();
+
+		$variables = array(
+			'home' => url('index')
+		);
+		$view = new View('text-demo/index');
+
+		return $view->make();
 	}
 
 	public function postIndex()
 	{
-		$result = (new Text())->convert($_POST['text']);
+		$variables = array(
+			'home' => url('index'),
+			'result' => (new Text())->convert($_POST['text'])
+		);
+		$view = new View('text-demo/index', $variables);
 
-		return (new \Boardwalk\View('text-demo/index', array('result' => $result)))->make();
+		return $view->make(); 
 	}
 }
