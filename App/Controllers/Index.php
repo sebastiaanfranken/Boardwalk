@@ -10,7 +10,7 @@ class Index extends Controller
 		$log = new \App\Models\Log();
 		$log->ip = $_SERVER['REMOTE_ADDR'];
 		$log->url = $_SERVER['REQUEST_URI'];
-		$log->timestamp = timestamp();
+		$log->timestamp = timestamp('Y-m-d H:i:s');
 		$log->create();
 
 		return (new \Boardwalk\View('index'))->make();

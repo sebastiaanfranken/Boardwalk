@@ -10,6 +10,7 @@
 namespace Boardwalk;
 
 use Exception;
+use PentoPrint\Exceptions\FileNotFoundException;
 
 class Router
 {
@@ -78,78 +79,72 @@ class Router
 	 */
 	public function __construct()
 	{
+
+		/*
+		 * Check if the routes file exists and load it. If it doesn't throw a new exception
+		 */
 		if(file_exists(config() . 'routes.php'))
 		{
 			$routes = include config() . 'routes.php';
 		}
 		else
 		{
-			throw new Exception('The file <em>' . config() . 'routes.php</em> does not exist');
+			throw new FileNotFoundException(config() . 'routes.php');
 		}
 
-		#if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
-		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['QUERY_STRING']))
+		/*
+		 * Check if it's a valid and legitimate request
+		 */
+		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
 		{
 			$this->requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
-			//$this->requestUri = $_SERVER['REQUEST_URI'];
-			$this->requestUri = $_SERVER['QUERY_STRING'];
+			$this->requestUri = $_SERVER['REQUEST_URI'];
 			$parts = explode('/', $this->requestUri);
 			$parts = array_values(array_filter($parts));
 
-			if(!isset($parts[0]))
+			if(count($parts) > 0)
 			{
-				$this->controller = $this->controllerPrefix . 'Index';
-				$this->routeController = 'index';
+				$method = isset($parts[1]) ? $parts[1] : 'index';
+				$controller = $routes[$parts[0]][$method][$this->requestMethod][0];
+
+				$this->controller = $this->controllerPrefix . $controller;
+				$this->routeController = strtolower($controller);
+
+				$this->method = $this->requestMethod . ucfirst($method);
+				$this->routeMethod = strtolower(str_replace($this->requestMethod, '', $this->method));
+
+				$this->arguments = (count($parts) == 3) ? $parts[3] : array();
 			}
 			else
 			{
-				$this->controller = $this->controllerPrefix . ucfirst($parts[0]);
-				$this->routeController = $parts[0];
-				array_shift($parts);
+				$controller = $routes['index'][$this->requestMethod][0];
+				$method = $routes['index'][$this->requestMethod][1];
+
+				$this->controller = $this->controllerPrefix . $controller;
+				$this->routeController = strtolower($controller);
+
+				$this->method = $method;
+				$this->routeMethod = strtolower(str_replace($this->requestMethod, '', $this->method));
+
+				$this->arguments = array();
 			}
 
-			if(!isset($parts[0]))
+			if(method_exists($this->controller, $this->method))
 			{
-				$this->method = 'getIndex';
-				$this->routeMethod = 'index';
-			}
-			else
-			{
-				$this->method = strtolower($this->requestMethod) . ucfirst($parts[0]);
-				$this->routeMethod = $parts[0];
-				array_shift($parts);
-			}
-
-			$this->arguments = (count($parts) > 0) ? $parts : array();
-
-			if($this->routeController == 'index' && $this->routeMethod == 'index')
-			{
-				$method = $routes[$this->routeController][$this->requestMethod];
-			}
-			else
-			{
-				$method = $routes[$this->routeController][$this->routeMethod][$this->requestMethod];
-			}
-
-			if(method_exists($this->controller, $method))
-			{
-				$instance = new $this->controller;	
+				$instance = new $this->controller;
 
 				/*
-				 * If the controller has a before method call it before the main function
+				 * Check if the instance has a before method
 				 */
 				if(method_exists($instance, 'before'))
 				{
 					$instance->before();
 				}
 
-				$fn = call_user_func_array(
-					array($instance, $method),
-					$this->arguments
-				);
+				$fn = call_user_func_array(array($instance, $this->method), $this->arguments);
 
-				/**
-				 * If the controller has an after method call if after now
+				/*
+				 * Check if the instance has an after method
 				 */
 				if(method_exists($instance, 'after'))
 				{
@@ -162,17 +157,17 @@ class Router
 				}
 				else
 				{
-					throw new Exception('The method <em>' . $this->controller . '::' . $method . '</em> does not return anything');
+					throw new Exception('The method <em>' . $this->controller . '::' . $this->method . '</em> does not return a string');
 				}
 			}
 			else
 			{
-				throw new Exception('The method <em>' . $method . '</em> does not exist in <em>' . $this->controller . '</em>');
+				throw new Exception('The method <em>' . $this->method . '</em> does not exist in <em>' . $this->controller . '</em>');
 			}
 		}
 		else
 		{
-			throw new Exception('Not a clear request');
+			throw new Exception('Unclear request');
 		}
 	}
 
