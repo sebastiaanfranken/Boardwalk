@@ -13,8 +13,8 @@ class TextDemo extends Controller
 
 	public function postIndex()
 	{
-		$content = (new Text())->convert($_POST['text']);
+		$result = (new Text())->convert($_POST['text']);
 
-		return $content;
+		return (new \Boardwalk\View('text-demo/index', array('result' => $result)))->make();
 	}
 }

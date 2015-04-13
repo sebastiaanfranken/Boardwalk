@@ -72,7 +72,7 @@ function assets()
  */
 function public_assets()
 {
-	return rtrim(rtrim($_SERVER['REQUEST_URI']), '/') . '/assets/';
+	return dirname($_SERVER['REQUEST_URI']) . 'assets/';
 }
 
 /**
