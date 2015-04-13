@@ -11,6 +11,14 @@ body {
 	line-height: 20px;
 }
 
+p, ul {
+	margin-bottom: 14px;
+}
+
+ul {
+	list-style-position: inside;
+}
+
 main {
 	margin: 50px auto;
 	width: 920px;

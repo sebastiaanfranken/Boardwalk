@@ -11,7 +11,10 @@
 	<body>
 		<main>
 			<h1>Boardwalk</h1>
-			<p>Het werkt! Nu is het tijd om <em>coole dingen</em> te gaan bouwen.</p>
+			<p>Het werkt! Nu is het tijd om <em>coole dingen</em> te gaan bouwen. Gebruik de links hieronder om demo's van het systeem te bekijken.</p>
+			<ul>
+				<li><a href="<?php print url(array('TextDemo', 'getIndex'));?>">Tekst demo</a></li>
+			</ul>
 		</main>
 	</body>
 </html>

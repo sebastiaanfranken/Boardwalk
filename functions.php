@@ -86,3 +86,28 @@ function timestamp($format = 'Y-m-d', $stamp = 'now')
 	$timezone = ini_get('date.timezone');
 	return (new \DateTime($stamp, new \DateTimeZone($timezone)))->format($format);
 }
+
+/**
+ * Generates a link
+ *
+ * @param array $parts The URL parts
+ * @return string
+ */
+function url(array $parts)
+{
+	$routes = include config() . 'routes.php';
+
+	preg_match('/[A-Z]/', lcfirst($parts[0]), $controllerMatches);
+	$controllerMatches = end($controllerMatches);
+	$controller = str_replace($controllerMatches, '-' . strtolower($controllerMatches), $parts[0]);
+	$controller = strtolower($controller);
+
+	$method = strtolower(str_replace(array('get', 'post'), '', $parts[1]));
+
+	if($method == 'index')
+	{
+		return '/' . $controller . '/';
+	}
+	
+	return '/' . $controller . '/' . $method . '/';
+}
