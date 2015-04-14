@@ -5,6 +5,8 @@ use Exception;
 
 class Bootstrapper
 {
+	protected static $requiredExtensions = array('mysqli', 'json');
+
 	protected function __construct(){}
 	protected function __clone(){}
 
@@ -27,13 +29,19 @@ class Bootstrapper
 		{
 			throw new Exception('This server is running PHP version ' . phpversion() . ' but we need 5.4.0 or higher');
 		}
-
-		/**
-		 * Check if we can use mysqli, which is required
+		
+		/*
+		 * Check if we have all the required extensions loaded into PHP
 		 */
-		if(!extension_loaded('mysqli'))
+		if(count(self::$requiredExtensions))
 		{
-			throw new Exception('The mysqli extension is required.');
+			foreach(self::$requiredExtensions as $extension)
+			{
+				if(!extension_loaded($extension))
+				{
+					throw new Exception('The ' . $extension . ' extension is required, but not loaded. Aborting.');
+				}
+			}
 		}
 	}
 }

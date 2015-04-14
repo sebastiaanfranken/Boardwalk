@@ -29,7 +29,7 @@
 				</thead>
 
 				<tbody>
-					<?php foreach($loglines as $key => $logline) : ?>
+					<?php foreach($loglines as $logline) : ?>
 					<tr>
 						<td><?php print $logline->id;?></td>
 						<td><?php print $logline->ip;?></td>

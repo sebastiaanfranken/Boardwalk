@@ -10,6 +10,7 @@
 namespace Boardwalk;
 
 use Exception;
+use Boardwalk\Exceptions\FileNotFoundException;
 
 class Router
 {
@@ -54,6 +55,12 @@ class Router
 	 * @access protected
 	 */
 	protected $output;
+	
+	/**
+	 * @var array The supported request methods.
+	 * @access protected
+	 */
+	protected $supportedRequestMethods = array('GET', 'POST');
 
 	/**
 	 * The constructor, loads the routes.php file and parses it.
@@ -61,8 +68,10 @@ class Router
 	 * on the rules in routes.php
 	 *
 	 * @return void
+	 * @throws Boardwalk\Exceptions\FileNotFoundException If the routes config file doesn't exist
 	 * @throws Exception If the method doesn't exist in the controller
 	 * @throws Exception If the _REQUEST_METHOD and _REQUEST_URI variables aren't set
+	 * @throws Exception If the REQUEST_METHOD isn't supported (See supportedRequestMethods for that)
 	 */
 	public function __construct()
 	{
@@ -84,7 +93,15 @@ class Router
 		 */
 		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
 		{
-			$this->requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
+			if(in_array($_SERVER['REQUEST_METHOD'], $this->supportedRequestMethods))
+			{
+				$this->requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
+			}
+			else
+			{
+				throw new Exception('This request method (' . $_SERVER['REQUEST_METHOD'] . ') is currently not (yet) supported. The currently supported methods are ' . implode(', ', $this->supportedRequestMethods));
+			}
+			
 			$this->requestUri = $_SERVER['REQUEST_URI'];
 			$parts = explode('/', $this->requestUri);
 			$parts = array_values(array_filter($parts));

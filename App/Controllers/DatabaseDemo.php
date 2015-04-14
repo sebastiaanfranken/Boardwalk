@@ -4,11 +4,13 @@ namespace App\Controllers;
 use App\Controllers\Controller;
 use Boardwalk\View;
 
+use App\Models\Log;
+
 class DatabaseDemo extends Controller
 {
 	public function getIndex()
 	{
-		$log = new \App\Models\Log();
+		$log = new Log();
 		$variables = array(
 			'loglines' => $log->fetchAll()
 		);
@@ -19,23 +21,30 @@ class DatabaseDemo extends Controller
 
 	public function postIndex()
 	{
-		$log = new \App\Models\Log();
+		$log = new Log();
 		$log->delete('request_method', '=', 'POST');
 		$log->close();
 
-		$log = new \App\Models\Log();
+		$log = new Log();
 		$log->delete('url', '=', '/database-demo');
 		$log->close();
 
-		//return header('Location: /database-demo');
 		return header('Location: ' . url('DatabaseDemo', 'getIndex'));
 	}
 
 	public function getRekey()
 	{
-		$log = new \App\Models\Log();
+		$log = new Log();
 		$log->rekey();
 
 		return header('Location: ' . url('DatabaseDemo', 'getIndex'));
+	}
+
+	public function getQuery()
+	{
+		$log = new Log();
+		$raw = 'DESCRIBE `%s`';
+
+		return pr($log->find(1));
 	}
 }

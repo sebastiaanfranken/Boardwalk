@@ -16,6 +16,9 @@ return array(
 		),
 		'rekey' => array(
 			'get' => array('DatabaseDemo', 'getRekey')
+		),
+		'query' => array(
+			'get' => array('DatabaseDemo', 'getQuery')
 		)
 	)
 );

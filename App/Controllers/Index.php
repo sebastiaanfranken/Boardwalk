@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Controllers\Controller;
+use Boardwalk\View;
 
 class Index extends Controller
 {

@@ -68,6 +68,11 @@ class View
 		{
 			foreach($this->variables as $name => $value)
 			{
+				if($value instanceof View)
+				{
+					$value = $value->make();
+				}
+			
 				$$name = $value;
 			}
 		}

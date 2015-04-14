@@ -89,6 +89,11 @@
 						<td>Bestand</td>
 						<td><?php print $file;?></td>
 					</tr>
+
+					<tr>
+						<td>Fouttype</td>
+						<td><?php print $exceptionType;?></td>
+					</tr>
 				</tbody>
 			</table>
 

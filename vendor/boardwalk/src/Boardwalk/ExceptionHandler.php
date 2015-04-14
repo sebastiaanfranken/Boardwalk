@@ -43,6 +43,7 @@ class ExceptionHandler
 			$line = $exception->getLine();
 			$trace = $exception->getTraceAsString();
 			$previous = $exception->getPrevious();
+			$exceptionType = get_class($exception);
 
 			require_once($templatefile);
 		}

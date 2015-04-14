@@ -11,7 +11,11 @@ namespace App\Models;
 
 use Exception;
 use InvalidArgumentException;
+use Boardwalk\Exceptions\NotImplementedException;
+use Boardwalk\Exceptions\SQLException;
+use Boardwalk\Exceptions\SQLConnectionException;
 use mysqli;
+use stdClass;
 
 abstract class Model
 {
@@ -40,6 +44,7 @@ abstract class Model
 	 *
 	 * Alternatively you can set the table name with setTable()
 	 * 
+	 * @throws Boardwalk\Exceptions\SQLConnectionException
 	 * @return void
 	 */
 	public function __construct()
@@ -55,35 +60,11 @@ abstract class Model
 
 		if($this->connection->connect_errno > 0)
 		{
-			throw new Exception($this->connection->connect_error, $this->connection->connect_errno);
+			throw new SQLConnectionException($this->connection);
 		}
 
 		$calledClass = explode('\\', get_called_class());
 		$this->table = strtolower(end($calledClass)) . 's';
-	}
-
-	/**
-	 * Closes the connection on destruction of the object
-	 */
-	public function __destruct()
-	{
-		$this->connection->close();
-	}
-
-	/**
-	 * Runs a few security related functions over input
-	 *
-	 * @param string $input The base query to parse
-	 * @return string
-	 * @access private
-	 */
-	private function secure($input)
-	{
-		$output = strip_tags($input);
-		$output = addslashes($output);
-		$output = $this->connection->real_escape_string($output);
-
-		return $output;
 	}
 
 	/**
@@ -113,6 +94,48 @@ abstract class Model
 		}
 		
 		return $this;
+	}
+
+	/**
+	 * Closes the connection on destruction of the object
+	 *
+	 * @todo Check if the connection is still active first
+	 */
+	public function __destruct()
+	{
+		// Does nothing for now
+	}
+
+	/**
+	 * A wrapper around the native query() method, this has the advantage
+	 * of being able to run prepared queries with vsprintf() and it also
+	 * runs secure() over all arguments, with array_map()
+	 *
+	 * @see secure()
+	 * @throws Exception
+	 * @param string $query The master query
+	 * @param mixed $attributes Any other attributes that are defined in the query
+	 * @return mysqli_result
+	 */
+	public function query()
+	{
+		throw new NotImplementedException(__METHOD__);
+	}
+
+	/**
+	 * Runs a few security related functions over input
+	 *
+	 * @param string $input The base query to parse
+	 * @return string
+	 * @access private
+	 */
+	private function secure($input)
+	{
+		$output = strip_tags($input);
+		$output = addslashes($output);
+		$output = $this->connection->real_escape_string($output);
+
+		return $output;
 	}
 
 	/**
@@ -165,9 +188,46 @@ abstract class Model
 	}
 
 	/**
+	 * Finds all records that have this ID set
+	 *
+	 * @param int $id The ID to use
+	 * @param string $column The ID column, defines to "id"
+	 * @throws Boardwalk\Exceptions\SQLException
+	 * @return mysqli_result
+	 */
+	public function find($id, $column = 'id')
+	{	
+		$table = $this->secure($this->table);
+		$column = $this->secure($column);
+		$id = $this->secure($id);
+		$query = 'SELECT * FROM `' . $table . '` WHERE `' . $column . '` = "' . $id . '"';
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new SQLException($this->connection);
+		}
+		else
+		{
+			$output = new stdClass;
+
+			while($row = $result->fetch_assoc())
+			{
+				foreach($row as $key => $value)
+				{
+					$output->$key = $value;
+				}
+			}
+
+			return $output;
+		}
+	}
+
+	/**
 	 * Fetches all rows from a table and returns the mysqli_result
 	 *
 	 * @param bool $distinct use SELECT DISTINCT
+	 * @throws Boardwalk\Exceptions\SQLException
 	 * @return mysqli_result
 	 */
 	private function fetch()
@@ -177,7 +237,7 @@ abstract class Model
 
 		if(!$result)
 		{
-			throw new Exception($this->connection->error, $this->connection->errno);
+			throw new SQLException($this->connection);
 		}
 
 		return $result;
@@ -187,17 +247,27 @@ abstract class Model
 	 * Fetches all rows from a table and returns them
 	 *
 	 * @see fetch()
-	 * @return array
+	 * @return stdClass
 	 */
 	public function fetchAll()
 	{
-		$resultset = $this->fetch();
-		$output = array();
+		$results = $this->fetch();
+		$output = new stdClass;
+		$counter = 0;
 
-		while($row = $resultset->fetch_assoc())
+		while($row = $results->fetch_assoc())
 		{
-			$output[] = (object)$row;
+			$output->$counter = new stdClass;
+
+			foreach($row as $key => $value)
+			{
+				$output->$counter->$key = $value;
+			}
+
+			++$counter;
 		}
+
+		$results->free();
 
 		return $output;
 	}
@@ -206,6 +276,7 @@ abstract class Model
 	 * The create method takes the attributes defined in $attributes and builds a query with them,
 	 * executes it and returns the result
 	 *
+	 * @throws Boardwalk\Exceptions\SQLException
 	 * @return mixed
 	 */
 	public function create()
@@ -226,7 +297,7 @@ abstract class Model
 
 			if(!$result)
 			{
-				throw new Exception($this->connection->error, $this->connection->errno);
+				throw new SQLException($this->connection);
 			}
 
 			return $result;
@@ -244,6 +315,8 @@ abstract class Model
 	 * @param string $whereKey The 1st part of the WHERE clause
 	 * @param string $whereOperator The 2nd part of the WHERE clause (the operator)
 	 * @param string $whereValue The 3rd part of the WHERE clause
+	 * @throws InvalidArgumentException
+	 * @throws Boardwalk\Exceptions\SQLException
 	 * @return mixed
 	 */
 	public function update($whereKey, $whereOperator, $whereValue, $limitStart = null, $limitEnd = null)
@@ -289,14 +362,14 @@ abstract class Model
 
 			if(!$result)
 			{
-				throw new Exception($this->connection->error, $this->connection->errno);
+				throw new SQLException($this->connection);
 			}
 
 			return $result;
 		}
 		else
 		{
-			throw new Exception($this->connection->error, $this->connection->errno);
+			throw new SQLException($this->connection);
 		}
 	}
 
@@ -307,7 +380,7 @@ abstract class Model
 	 * @param string $whereOperator The 2nd part of the WHERE clause (the operator)
 	 * @param string $whereValue The 3rd part of the WHERE clause
 	 * @param int $limit The limit, optional
-	 * @throws Exception
+	 * @throws SQLException
 	 * @return mysqli_result
 	 */
 	public function delete($whereKey, $whereOperator, $whereValue, $limit = null)
@@ -329,7 +402,7 @@ abstract class Model
 
 		if(!$result)
 		{
-			throw new Exception($this->connection->error, $this->connection->errno);
+			throw new SQLException($this->connection);
 		}
 
 		return $result;
@@ -338,7 +411,7 @@ abstract class Model
 	/**
 	 * Deletes _all_ records from $this->table
 	 *
-	 * @throws Exception
+	 * @throws SQLException
 	 * @return mysqli_result
 	 */
 	public function deleteAll()
@@ -348,7 +421,7 @@ abstract class Model
 
 		if(!$result)
 		{
-			throw new Exception($this->connection->error, $this->connection->errno);
+			throw new SQLException($this->connection);
 		}
 
 		return $result;
