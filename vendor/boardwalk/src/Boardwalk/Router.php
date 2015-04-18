@@ -87,6 +87,14 @@ class Router
 		{
 			throw new FileNotFoundException(config() . 'routes.php');
 		}
+		
+		/*
+		 * Check if the $supportedRequestMethods is an array and if it's set
+		 */
+		if(!is_array($this->supportedRequestMethods) || count($this->supportedRequestMethods) == 0)
+		{
+			throw new Exception('The supportedRequestMethod attribute is not set or empty.');
+		}
 
 		/*
 		 * Check if it's a valid and legitimate request
