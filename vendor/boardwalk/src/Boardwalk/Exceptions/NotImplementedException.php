@@ -22,6 +22,9 @@ class NotImplementedException extends Exception
 	 */
 	public function __construct($method)
 	{
-		parent::__construct($method . ' is not implemented', 1);
+		$message = '<em>%s</em> is not implemented.';
+		$error = sprintf($message, $method);
+
+		parent::__construct($error);
 	}
 }

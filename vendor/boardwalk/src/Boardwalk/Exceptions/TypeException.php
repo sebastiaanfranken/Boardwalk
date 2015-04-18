@@ -15,7 +15,7 @@ class TypeException extends Exception
 {
 	public function __construct($method, $datatype, $var, Exception $previous = null)
 	{
-		$message = '<em>' . $method . '</em> expects a <em>%s</em> but was given a <em>%s</em>.';
+		$message = '<em>%s</em> expects a <em>%s</em> but was given a <em>%s</em>.';
 		$error = sprintf($message, $method, $datatype, gettype($var));
 
 		if(is_null($previous))
