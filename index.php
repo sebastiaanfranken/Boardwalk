@@ -56,6 +56,23 @@ Boardwalk\Bootstrapper::checkServerRequirements();
  */
 # $aliases = new Boardwalk\AliasManager();
 
+if(file_exists(config() . 'application.php'))
+{
+	$items = require config() . 'application.php';
+
+	if(is_array($items))
+	{
+		foreach($items as $configKey => $configValue)
+		{
+			define('APP_' . strtoupper($configKey), $configValue);
+		}
+	}
+}
+else
+{
+	throw new Boardwalk\Exceptions\FileNotFoundException(config() . 'application.php');
+}
+
 /*
  * Our router handles URL's nicely
  */

@@ -17,5 +17,11 @@
 				<li><a href="<?php print $databaseDemoLink;?>">Database demo</a></li>
 			</ul>
 		</main>
+
+		<?php if(isset($profiler)) : ?>
+		<footer>
+			<?php print $profiler;?>
+		</footer>
+		<?php endif;?>
 	</body>
 </html>
