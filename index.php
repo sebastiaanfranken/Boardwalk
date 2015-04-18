@@ -1,8 +1,5 @@
 <?php
 
-ini_set('display_errors', 'On');
-error_reporting(E_ALL);
-
 /*
  * The main application entrance point. The application gets bootstrapped here and
  * this is where the autoloader is placed
