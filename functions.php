@@ -127,3 +127,8 @@ function url($controller, $method = 'getIndex', $removeTrailingSlash = false)
 		return $removeTrailingSlash ? rtrim($url, '/') : $url;
 	}
 }
+
+function chkconfig($key)
+{
+	return defined('APP_' . strtoupper($key)) ? constant('APP_' . strtoupper($key)) : false;
+}

@@ -71,6 +71,15 @@ else
 }
 
 /*
+ * Check if we're in debug mode and display errors if we are
+ */
+if(APP_DEBUG)
+{
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
+}
+
+/*
  * Our router handles URL's nicely
  */
 $router = new Boardwalk\Router();
