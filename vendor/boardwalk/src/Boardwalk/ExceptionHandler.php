@@ -39,8 +39,8 @@ class ExceptionHandler
 		{
 			$message = $exception->getMessage();
 			$code = $exception->getCode();
-			$file = $exception->getFile();
-			$line = $exception->getLine();
+			$file = $exception->getTrace()[0]['file'];
+			$line = $exception->getTrace()[0]['line'];
 			$trace = $exception->getTraceAsString();
 			$previous = $exception->getPrevious();
 			$exceptionType = get_class($exception);
