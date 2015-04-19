@@ -17,6 +17,13 @@ class Config
 	protected function __construct(){}
 	protected function __clone(){}
 
+	/**
+	 * Bootstraps the config items. It reads a file and parses it, setting all the variables as it goes
+	 *
+	 * @static
+	 * @return void
+	 * @throws Boardwalk\Exceptions\FileNotFoundException if the application.php file cannot be found in the config directory
+	 */
 	public static function bootstrap()
 	{
 		if(file_exists(config() . 'application.php'))
