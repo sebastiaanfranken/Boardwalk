@@ -26,7 +26,7 @@ spl_autoload_register(function($class) {
 	else
 	{
 		$vendor = array_shift($parts);
-		$filename = ltrim(str_replace($vendor, '', $class), '\\');
+		$filename = ltrim(str_replace($vendor, '', str_replace('\\', DIRECTORY_SEPARATOR, $class)), '\\');
 
 		$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($vendor) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php';
 	}
