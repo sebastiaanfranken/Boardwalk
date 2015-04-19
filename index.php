@@ -16,6 +16,7 @@ else
 }
 
 spl_autoload_register(function($class) {
+
 	$parts = explode('\\', $class);
 
 	if(strtolower($parts[0]) == 'app')
@@ -24,13 +25,10 @@ spl_autoload_register(function($class) {
 	}
 	else
 	{
-
-		$fqdn = explode('\\', $class);
-		$vendor = array_shift($fqdn);
+		$vendor = array_shift($parts);
 		$filename = ltrim(str_replace($vendor, '', $class), '\\');
 
-		$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($parts[0]) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php';
-		//$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($parts[0]) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+		$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($vendor) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php';
 	}
 
 	if(file_exists($file))
