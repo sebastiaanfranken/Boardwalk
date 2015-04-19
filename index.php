@@ -53,22 +53,10 @@ Boardwalk\Bootstrapper::checkServerRequirements();
  */
 # $aliases = new Boardwalk\AliasManager();
 
-if(file_exists(config() . 'application.php'))
-{
-	$items = require config() . 'application.php';
-
-	if(is_array($items))
-	{
-		foreach($items as $configKey => $configValue)
-		{
-			define('APP_' . strtoupper($configKey), $configValue);
-		}
-	}
-}
-else
-{
-	throw new Boardwalk\Exceptions\FileNotFoundException(config() . 'application.php');
-}
+/*
+ * Setup all the basic constants
+ */
+Boardwalk\Config::bootstrap();
 
 /*
  * Check if we're in debug mode and display errors if we are

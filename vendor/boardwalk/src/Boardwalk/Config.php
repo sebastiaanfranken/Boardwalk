@@ -10,11 +10,32 @@
 namespace Boardwalk;
 
 use Exception;
+use Boardwalk\Exceptions\FileNotFoundException;
 
 class Config
 {
 	protected function __construct(){}
 	protected function __clone(){}
+
+	public static function bootstrap()
+	{
+		if(file_exists(config() . 'application.php'))
+		{
+			$items = require config() . 'application.php';
+
+			if(is_array($items))
+			{
+				foreach($items as $configKey => $configValue)
+				{
+					self::set($configKey, $configValue);
+				}
+			}
+		}
+		else
+		{
+			throw new FileNotFoundException(config() . 'application.php');
+		}
+	}
 
 	/**
 	 * Gets a key, if it's set.
