@@ -17,7 +17,7 @@
 				<a href="<?php print url('DatabaseDemo', 'getRekey');?>">Stel IDs opnieuw in</a>
 			</form>
 
-			<p>Aantal records: <?php print $counter;?></p>
+			<p>Aantal records: <?php print $counter;?> (<?php print $uniqueCounter;?> uniek)</p>
 
 			<table cellpadding="0" cellspacing="0" border="0">
 				<thead>

@@ -11,9 +11,7 @@ namespace Boardwalk\Utilities;
 
 class Text
 {
-	public function __construct()
-	{
-	}
+	private function __construct(){}
 
 	/**
 	 * Secure any inputs provided, pass it through strip_tags() and addslashes()
@@ -23,7 +21,7 @@ class Text
 	 * @param string $input The input to secure
 	 * @return string
 	 */
-	public function secure($input)
+	public static function secure($input)
 	{
 		$output = strip_tags($input);
 		$output = addslashes($output);
@@ -37,7 +35,7 @@ class Text
 	 * @param string $input The input to convert
 	 * @return string
 	 */
-	public function convert($input)
+	public static function convert($input)
 	{
 		$output = htmlentities($input);
 		$output = nl2br($output);

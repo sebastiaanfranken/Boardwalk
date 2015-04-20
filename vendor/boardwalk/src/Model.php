@@ -16,6 +16,7 @@ use Boardwalk\Exceptions\SQLException;
 use Boardwalk\Exceptions\SQLConnectionException;
 use mysqli;
 use stdClass;
+use Boardwalk\Utilities\Text;
 
 abstract class Model
 {
@@ -131,8 +132,7 @@ abstract class Model
 	 */
 	private function secure($input)
 	{
-		$output = strip_tags($input);
-		$output = addslashes($output);
+		$output = Text::secure($input);
 		$output = $this->connection->real_escape_string($output);
 
 		return $output;
@@ -448,5 +448,36 @@ abstract class Model
 		}
 
 		return $result->fetch_object()->counter;
+	}
+
+	/**
+	 * Count all distinct rows in a table
+	 *
+	 * @param string $column The column to count
+	 * @return int
+	 * @throws InvalidArgumentException if there is no $column
+	 * @throws Boardwalk\Exceptions\SQLException
+	 */
+	public function countDistinct($column = null)
+	{
+		if(is_null($column))
+		{
+			throw new InvalidArgumentException(__METHOD__ . ' expects a string but was given nothing.');
+		}
+		else
+		{
+			$raw = 'SELECT COUNT(DISTINCT `%s`) AS `counter` FROM `%s`';
+			$count = $this->secure($column);
+			$table = $this->secure($this->table);
+			$query = sprintf($raw, $count, $table);
+			$result = $this->connection->query($query);
+
+			if(!$result)
+			{
+				throw new SQLException($this->connection);
+			}
+
+			return $result->fetch_object()->counter;
+		}
 	}
 }
