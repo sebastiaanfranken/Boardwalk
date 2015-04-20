@@ -7,7 +7,7 @@
  * @author Sebastiaan Franken <sebastiaan@sebastiaanfranken.nl>
  */
 
-namespace App\Models;
+namespace Boardwalk;
 
 use Exception;
 use InvalidArgumentException;
@@ -49,7 +49,7 @@ abstract class Model
 	 */
 	public function __construct()
 	{
-		$dbConfig = require(config() . 'db.php');
+		$dbConfig = require config() . 'db.php';
 
 		$this->connection = new mysqli(
 			$dbConfig['hostname'],

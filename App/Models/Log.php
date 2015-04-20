@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 
-use App\Models\Model;
+use Boardwalk\Model;
 
 class Log extends Model
 {
