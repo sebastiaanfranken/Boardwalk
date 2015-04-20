@@ -20,5 +20,10 @@ return array(
 		'query' => array(
 			'get' => array('DatabaseDemo', 'getQuery')
 		)
+	),
+	'helpers-demo' => array(
+		'index' => array(
+			'get' => array('HelpersDemo', 'getIndex')
+		)
 	)
 );
