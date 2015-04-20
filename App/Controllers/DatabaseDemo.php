@@ -12,7 +12,8 @@ class DatabaseDemo extends Controller
 	{
 		$log = new Log();
 		$variables = array(
-			'loglines' => $log->fetchAll()
+			'loglines' => $log->fetchAll(),
+			'counter' => $log->count()
 		);
 
 		$view = new View('database-demo/index', $variables);

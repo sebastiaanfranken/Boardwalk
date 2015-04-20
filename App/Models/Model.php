@@ -426,4 +426,27 @@ abstract class Model
 
 		return $result;
 	}
+
+	/**
+	 * Count all rows in a table
+	 *
+	 * @param string $column The column to count, uses 'id' as standard
+	 * @return int
+	 * @throws Boardwalk\Exceptions\SQLException
+	 */
+	public function count($column = 'id')
+	{
+		$raw = 'SELECT COUNT(`%s`) AS `counter` FROM `%s`';
+		$count = $this->secure($column);
+		$table = $this->secure($this->table);
+		$query = sprintf($raw, $count, $table);
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new SQLException($this->connection);
+		}
+
+		return $result->fetch_object()->counter;
+	}
 }

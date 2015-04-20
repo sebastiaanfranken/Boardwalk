@@ -116,11 +116,11 @@ class Router
 
 			if(count($parts) > 0)
 			{
-				$method = isset($parts[1]) ? $parts[1] : 'index';
-				$controller = $routes[$parts[0]][$method][$this->requestMethod][0];
+				$method = $this->getMethodFromRoutes($parts);
+				$controller = $this->getControllerFromRoutes($parts);
 
 				$this->controller = $this->controllerPrefix . $controller;
-				$this->method = $this->requestMethod . ucfirst($method);
+				$this->method = $method;
 				$this->arguments = (count($parts) == 3) ? $parts[3] : array();
 			}
 			else
@@ -173,6 +173,64 @@ class Router
 		{
 			throw new Exception('Unclear request');
 		}
+	}
+
+	/**
+	 * Get the method to call from the routes.php config file
+	 * based on the routes (array) given
+	 *
+	 * @param array $routes The section of routes to use for filtering
+	 * @return string
+	 * @todo Add error handling if a method doesn't exist
+	 */
+	public function getMethodFromRoutes(array $routes)
+	{
+		if(count($routes) == 1)
+		{
+			$routes[] = 'index';
+		}
+
+		$routingtable = require config() . 'routes.php';
+
+		/*
+		 * Doing this in four steps to increase legability
+		 */
+
+		$method = $routingtable[$routes[0]];
+		$method = $method[$routes[1]];
+		$method = $method[$this->requestMethod];
+		$method = end($method);
+
+		return $method;
+	}
+
+	/**
+	 * Get the controller to call from the routes.php config file
+	 * based on the routes (array) given.
+	 *
+	 * @param array $routes The section of routes to use for filtering
+	 * @return string
+	 * @todo Add error handling if a controller doesn't exist
+	 */
+	public function getControllerFromRoutes(array $routes)
+	{
+		if(count($routes) == 1)
+		{
+			$routes[] = 'index';
+		}
+
+		$routingtable = require config() . 'routes.php';
+
+		/*
+		 * Doing this in a few steps to increase legability
+		 */
+
+		$controller = $routingtable[$routes[0]];
+		$controller = $controller[$routes[1]];
+		$controller = $controller[$this->requestMethod];
+		$controller = array_shift($controller);
+
+		return $controller;
 	}
 
 	/**
