@@ -232,7 +232,7 @@ abstract class Model
 	 */
 	private function fetch()
 	{
-		$query = 'SELECT * FROM `' . $this->table . '`';
+		$query = 'SELECT * FROM `' . $this->secure($this->table) . '`';
 		$result = $this->connection->query($query);
 
 		if(!$result)
@@ -270,6 +270,46 @@ abstract class Model
 		$results->free();
 
 		return $output;
+	}
+
+	/**
+	 * Fetches all rows from a table and orders them
+	 *
+	 * @return stdClass
+	 * @throws Boardwalk\Exceptions\SQLException
+	 */
+	public function fetchOrderdBy($column, $ascending = true)
+	{
+		$raw = 'SELECT * FROM `%s` ORDER BY `%s` %s';
+		$order = $ascending ? 'ASC' : 'DESC';
+		$orderField = $this->secure($column);
+		$query = sprintf($raw, $this->secure($this->table), $orderField, $order);
+		$result = $this->connection->query($query);
+		$output = new stdClass;
+		$counter = 0;
+
+		if(!$result)
+		{
+			throw new SQLException($this->connection);
+		}
+		else
+		{
+			while($row = $result->fetch_assoc())
+			{
+				$output->$counter = new stdClass;
+
+				foreach($row as $key => $value)
+				{
+					$output->$counter->$key = $value;
+				}
+
+				++$counter;
+			}
+
+			$result->free();
+
+			return $output;
+		}
 	}
 
 	/**
