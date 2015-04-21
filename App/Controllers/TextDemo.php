@@ -22,7 +22,7 @@ class TextDemo extends Controller
 	{
 		$variables = array(
 			'home' => url('index'),
-			'result' => (new Text())->convert($_POST['text'])
+			'result' => Text::convert($_POST['text'])
 		);
 		$view = new View('text-demo/index', $variables);
 
