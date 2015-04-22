@@ -15,6 +15,7 @@
 			<ul>
 				<li><a href="<?php print $textDemoLink;?>">Tekst demo</a></li>
 				<li><a href="<?php print $databaseDemoLink;?>">Database demo</a></li>
+				<li><a href="<?php print $helpersDemoLink;?>">Helpers link</a></li>
 			</ul>
 		</main>
 

@@ -10,7 +10,8 @@ class Index extends Controller
 	{
 		$attributes = array(
 			'textDemoLink' => url('TextDemo', 'getIndex'),
-			'databaseDemoLink' => url('DatabaseDemo', 'getIndex')
+			'databaseDemoLink' => url('DatabaseDemo', 'getIndex'),
+			'helpersDemoLink' => url('HelpersDemo', 'getIndex')
 		);
 
 		$view = new \Boardwalk\View('index', $attributes);

@@ -304,4 +304,68 @@ class ACL
 
 		return $this;
 	}
+
+	public function setRole($role)
+	{
+		if(!$this->hasRole($role))
+		{
+			$this->roles[] = $role;
+		}
+
+		return $this;
+	}
+
+	public function setRoles(array $roles)
+	{
+		foreach($roles as $role)
+		{
+			$this->setRole($role);
+		}
+
+		return $this;
+	}
+
+	public function hasRole($role)
+	{
+		return is_array($this->roles) ? in_array($role, $this->roles) : false;
+	}
+
+	public function getRoles()
+	{
+		return $this->roles;
+	}
+
+	public function setRule($resource, $privilege, $action = self::ACTION_ALL)
+	{
+		if(!$this->hasResource($resource))
+		{
+			$this->addResource($resource);
+		}
+
+		if($action == self::ACTION_ALL)
+		{
+			foreach($this->possibleActions as $action)
+			{
+				if(!isset($this->rules[$resource][$action]))
+				{
+					$this->rules[$resource][$action] = $privilege;
+				}
+				else
+				{
+					$this->rules[$resource][$action] = $this->permissionOr($this->rules[$resource][$action], $privilege);
+				}
+			}
+		}
+		else
+		{
+			if(!isset($this->rules[$resource][$action]))
+			{
+				$this->rules[$resource][$action] = $privilege;
+			}
+			else
+			{
+				$this->rules[$resource][$action] = $this->permissionOr($this->rules[$resource][$action], $privilege);
+			}
+		}
+	}
 }
