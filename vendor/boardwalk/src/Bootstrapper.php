@@ -43,5 +43,13 @@ class Bootstrapper
 				}
 			}
 		}
+
+		/*
+		 * Check if the things we need are set in PHP's config or through ini_set
+		 */
+		if(!ini_get('date.timezone'))
+		{
+			throw new Exception(sprintf('The config item <em>%s</em> is not set. Set this in the main PHP config file or through <em>ini_set()</em>.', 'date.timezone'));
+		}
 	}
 }
