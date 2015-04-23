@@ -45,7 +45,7 @@ spl_autoload_register(function($class) {
 /*
  * Register our exception handler to enable pretty printing of exceptions
  */
-$exceptionHandler = new Boardwalk\ExceptionHandler();
+Boardwalk\ExceptionHandler::register();
 
 /*
  * Check if the server meets some requirements

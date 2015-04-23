@@ -368,4 +368,85 @@ class ACL
 			}
 		}
 	}
+
+	public function setForceRule($resource, $privilege, $action = self::ACTION_ALL)
+	{
+		if(!$this->hasResource($resource))
+		{
+			$this->addResource($resource);
+		}
+
+		if($action == self::ACTION_ALL)
+		{
+			foreach($this->possibleActions as $action)
+			{
+				$this->rules[$resource][$action] = $privilege;
+			}
+		}
+		else
+		{
+			$this->rules[$resource][$action] = $privilege;
+		}
+	}
+
+	public function setRules(array $rules)
+	{
+		foreach($rules as $rule)
+		{
+			$this->setRule($rule['resource'], $rule['privilege'], $rule['action']);
+		}
+	}
+
+	public function setForceRules(array $rules)
+	{
+		foreach($rules as $rule)
+		{
+			$this->setForceRule($rule['resource'], $rule['privilege'], $rule['action']);
+		}
+	}
+
+	public function getRules()
+	{
+		return $this->rules;
+	}
+
+	public function isAllowed($resource, $action = self::ACTION_ALL)
+	{
+		if($action == self::ACTION_ALL)
+		{
+			$return = true;
+
+			foreach($this->possibleActions as $action)
+			{
+				if(!isset($this->rules[$resource][$action]) || (isset($this->rules[$resource][$action]) && $this->rules[$resource][$action] !== self::ALLOW))
+				{
+					$return = false;
+					break;
+				}
+			}
+
+			return $return;
+		}
+		else
+		{
+			return ((isset($this->rules[$resource][$action]) && $this->rules[$resource][$action] === 'allow') ? true : false);
+		}
+	}
+
+	public function deleteRole($role)
+	{
+		if($this->hasRole($role))
+		{
+			$key = array_search($role, $this->roles);
+			unset($this->roles[$key]);
+		}
+	}
+
+	private function permissionOr($a, $b)
+	{
+		$x = ($a === self::ALLOW) ? 1 : 0;
+		$y = ($b === self::ALLOW) ? 1 : 0;
+
+		return (($x | $y) == 1) ? 'allow' : 'deny';
+	}
 }
