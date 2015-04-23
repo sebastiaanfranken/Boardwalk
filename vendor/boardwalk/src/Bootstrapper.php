@@ -10,6 +10,67 @@ class Bootstrapper
 	protected function __construct(){}
 	protected function __clone(){}
 
+	/**
+	 * Checks if the server has all required extensions loaded/installed
+	 *
+	 * @access private
+	 * @static
+	 * @return void
+	 */
+	private static function checkRequiredExtensions()
+	{
+		if(count(self::$requiredExtensions) > 0)
+		{
+			foreach(self::$requiredExtensions as $ext)
+			{
+				if(!extension_loaded($ext))
+				{
+					throw new Exception(sprintf('The <em>%s</em> extension is required, but not loaded or installed. Aborting.', $ext));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Adds an extension to the list of required extensions
+	 *
+	 * @param string $name The name of the extension
+	 * @param bool $recheck Recheck if an extension is added?
+	 * @static
+	 * @return void
+	 */
+	public static function addRequiredExtension($name, $recheck = true)
+	{
+		self::$requiredExtensions[] = $name;
+
+		if($recheck)
+		{
+			self::checkRequiredExtensions();
+		}
+	}
+
+	/**
+	 * Adds multiple new extensions to the list
+	 *
+	 * @param array $extensions The list of extensions
+	 * @param bool $recheck Recheck if an extension is added?
+	 * @static
+	 * @return void
+	 */
+	public static function addRequiredExtensions(array $extensions, $recheck = true)
+	{
+		foreach($extensions as $extension)
+		{
+			self::addRequiredExtension($extension, $recheck);
+		}
+	}
+
+	/**
+	 * Checks all server requirements
+	 *
+	 * @static
+	 * @return void
+	 */
 	public static function checkServerRequirements()
 	{
 
@@ -33,16 +94,7 @@ class Bootstrapper
 		/*
 		 * Check if we have all the required extensions loaded into PHP
 		 */
-		if(count(self::$requiredExtensions))
-		{
-			foreach(self::$requiredExtensions as $extension)
-			{
-				if(!extension_loaded($extension))
-				{
-					throw new Exception('The ' . $extension . ' extension is required, but not loaded. Aborting.');
-				}
-			}
-		}
+		self::checkRequiredExtensions();
 
 		/*
 		 * Check if the things we need are set in PHP's config or through ini_set
