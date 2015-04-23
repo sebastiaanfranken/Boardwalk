@@ -80,7 +80,7 @@ class Bootstrapper
 		 */
 		if(strstr($_SERVER['REQUEST_URI'], '~'))
 		{
-			throw new Exception('Boardwalk cannot run in a userdir (running in ' . $_SERVER['REQUEST_URI'] . ')');
+			throw new Exception(sprintf('Boardwalk cannot run in a userdir (running in <em>%s</em>)', $_SERVER['REQUEST_URI']));
 		}
 
 		/*
@@ -88,7 +88,7 @@ class Bootstrapper
 		 */
 		if(version_compare(phpversion(), '5.4.0', '<='))
 		{
-			throw new Exception('This server is running PHP version ' . phpversion() . ' but we need 5.4.0 or higher');
+			throw new Exception(sprintf('This server is running PHP version <em>%s</em>, but we need 5.4.0 or higher.', phpversion()));
 		}
 		
 		/*
