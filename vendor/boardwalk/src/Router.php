@@ -107,7 +107,7 @@ class Router
 			}
 			else
 			{
-				throw new Exception('This request method (' . $_SERVER['REQUEST_METHOD'] . ') is currently not (yet) supported. The currently supported methods are ' . implode(', ', $this->supportedRequestMethods));
+				throw new Exception(sprintf('The request method <em>%s</em> is currently not (yet) supported. The currently supported methods are %s', $_SERVER['REQUEST_METHOD'], implode(', ', $this->supportedRequestMethods)));
 			}
 			
 			$this->requestUri = $_SERVER['REQUEST_URI'];
@@ -161,12 +161,12 @@ class Router
 				}
 				else
 				{
-					throw new Exception('The method <em>' . $this->controller . '::' . $this->method . '</em> does not return a string');
+					throw new Exception(sprintf('The method <em>%s</em> does not return a string.', $this->controller . '::' . $this->method));
 				}
 			}
 			else
 			{
-				throw new Exception('The method <em>' . $this->method . '</em> does not exist in <em>' . $this->controller . '</em>');
+				throw new Exception(sprintf('The method <em>%s</em> does not exist in <em>%s</em>', $this->method, $this->controller));
 			}
 		}
 		else
