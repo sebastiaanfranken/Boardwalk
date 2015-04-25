@@ -24,6 +24,10 @@ return array(
 	'helpers-demo' => array(
 		'index' => array(
 			'get' => array('HelpersDemo', 'getIndex')
+		),
+		'convert' => array(
+			'get' => array('HelpersDemo', 'getConversion'),
+			'post' => array('HelpersDemo', 'postConversion')
 		)
 	)
 );

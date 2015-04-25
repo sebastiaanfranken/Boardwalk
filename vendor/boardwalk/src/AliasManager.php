@@ -45,7 +45,7 @@ class AliasManager
 		}
 		else
 		{
-			throw new Exception('The alias <em>' . $alias . '</em> is already defined.');
+			throw new Exception(sprintf('The alias <em>%s</em> is already defined.', $alias));
 		}
 
 		return $this;
