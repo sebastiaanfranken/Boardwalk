@@ -78,7 +78,9 @@ class Bootstrapper
 		 * Check if we're running in a virtualhost / in the root folder.
 		 * The system won't work in a userdir (wontfix)
 		 */
-		if(strstr($_SERVER['REQUEST_URI'], '~'))
+		$requestUri = ltrim(trim($_SERVER['REQUEST_URI']), '/');
+
+		if(substr($requestUri, 0, 1) === '~')
 		{
 			throw new Exception(sprintf('Boardwalk cannot run in a userdir (running in <em>%s</em>)', $_SERVER['REQUEST_URI']));
 		}
@@ -90,7 +92,7 @@ class Bootstrapper
 		{
 			throw new Exception(sprintf('This server is running PHP version <em>%s</em>, but we need 5.4.0 or higher.', phpversion()));
 		}
-		
+
 		/*
 		 * Check if we have all the required extensions loaded into PHP
 		 */
