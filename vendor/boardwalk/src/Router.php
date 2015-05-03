@@ -11,6 +11,7 @@ namespace Boardwalk;
 
 use Exception;
 use Boardwalk\Exceptions\FileNotFoundException;
+use Boardwalk\Utilities\ObjectConverter;
 
 class Router
 {
@@ -191,14 +192,15 @@ class Router
 		}
 
 		$routingtable = require config() . 'routes.php';
+		$routing = ObjectConverter::toObject($routingtable);
 
 		/*
 		 * Doing this in four steps to increase legability
 		 */
 
-		$method = $routingtable[$routes[0]];
-		$method = $method[$routes[1]];
-		$method = $method[$this->requestMethod];
+		$method = $routing->{$routes[0]};
+		$method = $method->{$routes[1]};
+		$method = $method->{$this->requestMethod};
 		$method = end($method);
 
 		return $method;
