@@ -5,7 +5,7 @@ use Exception;
 
 class Bootstrapper
 {
-	protected static $requiredExtensions = array('mysqli', 'json', 'xml');
+	protected static $requiredExtensions = array('mysqli', 'json', 'xml', 'date');
 
 	protected function __construct(){}
 	protected function __clone(){}
