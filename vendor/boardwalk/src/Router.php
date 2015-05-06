@@ -12,7 +12,7 @@ namespace Boardwalk;
 use Exception;
 use Boardwalk\Exceptions\FileNotFoundException;
 use Boardwalk\Utilities\ObjectConverter;
-use Boardwalk\Utilities\Text;
+use Boardwalk\Utilities\Text as TextUtility;
 
 class Router
 {
@@ -110,7 +110,7 @@ class Router
 			else
 			{
 				$message = 'The request method <em>%s</em> is currently not (yet) supported. The currently supported methods are %s';
-				$methods = Text::arrayImplode($this->supportedRequestMethods);
+				$methods = TextUtility::arrayImplode($this->supportedRequestMethods);
 				throw new Exception(sprintf($message, $_SERVER['REQUEST_METHOD'], $methods));
 			}
 			
