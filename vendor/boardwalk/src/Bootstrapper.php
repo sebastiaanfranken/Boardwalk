@@ -1,4 +1,15 @@
 <?php
+
+/**
+ * The main bootstrapper for the system. Checks if the server meets the requirements
+ * like certain PHP modules (mysqli, json, xml and date) and if the system isn't
+ * running in a userdir, has PHP 5.4.0 or higher and if the setting "date.timezone" is
+ * set in php.ini
+ *
+ * @package Boardwalk
+ * @author Sebastiaan Franken <sebastiaan@sebastiaanfranken.nl>
+ */
+
 namespace Boardwalk;
 
 use Exception;
