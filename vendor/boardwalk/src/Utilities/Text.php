@@ -42,4 +42,43 @@ class Text
 
 		return $output;
 	}
+
+	/**
+	 * Implodes arrays with $seperator, $beforeLine and $afterLine as the glue
+	 *
+	 * @param array $inputs The input array to glue together again
+	 * @param string $seperator The individual part seperator
+	 * @param string $beforeLine Gets inserted before each item
+	 * @param string $afterLine Gets inserted after each item. Should be the counterpart to $beforeLine
+	 * @return string
+	 * @throws Exception if the $inputs isn't an array with at least one item
+	 */
+	public static function arrayImplode(array $inputs, $seperator = ',', $beforeLine = '<em>', $afterLine = '</em>')
+	{
+		$output = '';
+
+		if($seperator = ',')
+		{
+			$seperator = $seperator . ' ';
+		}
+		else
+		{
+			$seperator = ' ' . $seperator . ' ';
+		}
+
+		if(count($inputs) > 0)
+		{
+			foreach($inputs as $part)
+			{
+				$output .= $beforeLine . $part . $afterLine . $seperator;
+			}
+
+			$output = rtrim(rtrim($output), $seperator);
+			return $output;
+		}
+		else
+		{
+			throw new \Exception('Empty array passed to ' . __FUNCTION__);
+		}
+	}
 }

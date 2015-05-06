@@ -52,6 +52,9 @@ abstract class Model
 	{
 		$dbConfig = require config() . 'db.php';
 
+		/**
+		 * @todo Abstract this into multiple drivers so we can use more DBMS's
+		 */
 		$this->connection = new mysqli(
 			$dbConfig['hostname'],
 			$dbConfig['username'],
