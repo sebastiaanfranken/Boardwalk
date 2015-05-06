@@ -16,7 +16,7 @@ use Exception;
 
 class Bootstrapper
 {
-	protected static $requiredExtensions = array('mysqli', 'json', 'xml', 'date');
+	protected static $config = array();
 
 	protected function __construct(){}
 	protected function __clone(){}
@@ -30,9 +30,11 @@ class Bootstrapper
 	 */
 	private static function checkRequiredExtensions()
 	{
-		if(count(self::$requiredExtensions) > 0)
+		$requiredExtensions = self::$config['requiredExtensions'];
+
+		if(is_array($requiredExtensions) && count($requiredExtensions) > 0)
 		{
-			foreach(self::$requiredExtensions as $ext)
+			foreach($requiredExtensions as $ext)
 			{
 				if(!extension_loaded($ext))
 				{
@@ -52,7 +54,7 @@ class Bootstrapper
 	 */
 	public static function addRequiredExtension($name, $recheck = true)
 	{
-		self::$requiredExtensions[] = $name;
+		self::$config['requiredExtensions'][] = $name;
 
 		if($recheck)
 		{
@@ -85,6 +87,8 @@ class Bootstrapper
 	public static function checkServerRequirements()
 	{
 
+		self::$config = require config() . 'bootstrapper.php';
+
 		/*
 		 * Check if we're running in a virtualhost / in the root folder.
 		 * The system won't work in a userdir (wontfix)
@@ -99,7 +103,8 @@ class Bootstrapper
 		/*
 		 * Check the servers PHP version, it needs to be 5.4.0 or higher
 		 */
-		if(version_compare(phpversion(), '5.4.0', '<='))
+		//if(version_compare(phpversion(), '5.4.0', '<='))
+		if(version_compare(phpversion(), self::$config['phpversion'], '<='))
 		{
 			throw new Exception(sprintf('This server is running PHP version <em>%s</em>, but we need 5.4.0 or higher.', phpversion()));
 		}
