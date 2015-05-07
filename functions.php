@@ -127,3 +127,14 @@ function url($controller, $method = 'getIndex', $removeTrailingSlash = false)
 		return $removeTrailingSlash ? rtrim($url, '/') : $url;
 	}
 }
+
+/**
+ * A more hardcore version of print_r, which prints and continues execution. This shows and stops.
+ *
+ * @param mixed $input The input to run through print_r
+ * @see pr()
+ */
+function die_r($input)
+{
+	die(pr($input));
+}

@@ -141,6 +141,16 @@ class Router
 			{
 				$instance = new $this->controller;
 
+				$methods = (new \ReflectionObject($instance))->getMethods();
+
+				foreach($methods as $method)
+				{
+					if($method instanceof \ReflectionMethod)
+					{
+						print pr($method);
+					}
+				}
+
 				/*
 				 * Check if the instance has a before method
 				 */
