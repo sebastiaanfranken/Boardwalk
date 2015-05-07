@@ -19,26 +19,33 @@ spl_autoload_register(function($class) {
 
 	$parts = explode('\\', $class);
 
-	if(strtolower($parts[0]) == 'app')
+	if(count($parts) > 0)
 	{
-		$file = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+		if(strtolower($parts[0]) == 'app')
+		{
+			$file = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+		}
+		else
+		{
+			$vendor = array_shift($parts);
+			$filename = ltrim(str_replace($vendor, '', str_replace('\\', DIRECTORY_SEPARATOR, $class)), '\\');
+
+			$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($vendor) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php';
+		}
+
+		if(file_exists($file))
+		{
+			require_once($file);
+		}
+		else
+		{
+			ini_set('display_errors', 'On');
+			trigger_error('The requested file <em>' . $file . '</em> was not found', E_USER_ERROR);
+		}
 	}
 	else
 	{
-		$vendor = array_shift($parts);
-		$filename = ltrim(str_replace($vendor, '', str_replace('\\', DIRECTORY_SEPARATOR, $class)), '\\');
-
-		$file = __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . strtolower($vendor) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $filename . '.php';
-	}
-
-	if(file_exists($file))
-	{
-		require_once($file);
-	}
-	else
-	{
-		ini_set('display_errors', 'On');
-		trigger_error('The requested file <em>' . $file . '</em> was not found', E_USER_ERROR);
+		continue;
 	}
 });
 

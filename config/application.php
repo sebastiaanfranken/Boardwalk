@@ -1,4 +1,5 @@
 <?php
 return array(
-	'debug' => true
+	'debug' => true,
+	'supportedRequestMethods' => array('GET', 'POST')
 );

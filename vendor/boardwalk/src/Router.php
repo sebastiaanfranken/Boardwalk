@@ -62,7 +62,7 @@ class Router
 	 * @var array The supported request methods.
 	 * @access protected
 	 */
-	protected $supportedRequestMethods = array('GET', 'POST');
+	protected $supportedRequestMethods = array();
 
 	/**
 	 * The constructor, loads the routes.php file and parses it.
@@ -90,6 +90,16 @@ class Router
 			throw new FileNotFoundException(config() . 'routes.php');
 		}
 		
+		if(file_exists(config() . 'application.php'))
+		{
+			$applicationConfig = include config() . 'application.php';
+			$this->supportedRequestMethods = $applicationConfig['supportedRequestMethods'];
+		}
+		else
+		{
+			throw new FileNotFoundException(config() . 'application.php');
+		}
+
 		/*
 		 * Check if the $supportedRequestMethods is an array and if it's set
 		 */
