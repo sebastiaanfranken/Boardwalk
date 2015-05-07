@@ -200,33 +200,6 @@ abstract class Model
 	 */
 	public function find($id, $column = 'id')
 	{	
-		/*
-		$table = $this->secure($this->table);
-		$column = $this->secure($column);
-		$id = $this->secure($id);
-		$query = 'SELECT * FROM `' . $table . '` WHERE `' . $column . '` = "' . $id . '"';
-		$result = $this->connection->query($query);
-
-		if(!$result)
-		{
-			throw new SQLException($this->connection);
-		}
-		else
-		{
-			$output = new stdClass;
-
-			while($row = $result->fetch_assoc())
-			{
-				foreach($row as $key => $value)
-				{
-					$output->$key = $value;
-				}
-			}
-
-			return $output;
-		}
-		*/
-
 		$table = $this->secure($this->table);
 		$column = $this->secure($column);
 		$id = $this->secure($id);
@@ -264,7 +237,9 @@ abstract class Model
 	 */
 	private function fetch()
 	{
-		$query = 'SELECT * FROM `' . $this->secure($this->table) . '`';
+		$raw = "SELECT * FROM `%s`";
+		$table = $this->secure($this->table);
+		$query = sprintf($raw, $table);
 		$result = $this->connection->query($query);
 
 		if(!$result)
@@ -349,22 +324,25 @@ abstract class Model
 	 * executes it and returns the result
 	 *
 	 * @throws Boardwalk\Exceptions\SQLException
+	 * @throws Exception
 	 * @return mixed
 	 */
 	public function create()
 	{
-		$query = 'INSERT INTO `' . $this->table . '` SET ';
-
 		if(count($this->attributes) > 0)
 		{
+			$raw = "INSERT INTO `%s` SET ";
+			$args = array($this->secure($this->table));
+
 			foreach($this->attributes as $key => $value)
 			{
-				$key = $this->secure($key);
-				$value = $this->secure($value);
-				$query .= "`" . $key . "` = '" . $value . "', ";
+				$raw .= "`%s` = '%s', ";
+				$args[] = $key;
+				$args[] = $value;
 			}
 
-			$query = rtrim(rtrim($query), ',');
+			$raw = rtrim(rtrim($raw), ',');
+			$query = vsprintf($raw, $args);
 			$result = $this->connection->query($query);
 
 			if(!$result)
@@ -376,7 +354,7 @@ abstract class Model
 		}
 		else
 		{
-			throw new Exception('No attributes passed to the model');
+			throw new Exception(sprintf('No attributes passed to the model at <em>%s</em>', __METHOD__));
 		}
 	}
 
@@ -386,6 +364,7 @@ abstract class Model
 	 * if it doesn't it does a create.
 	 *
 	 * @throws Boardwalk\Exceptions\SQLException
+	 * @throws Exception
 	 * @return mixed
 	 */
 	public function update()
@@ -418,7 +397,7 @@ abstract class Model
 			}
 			else
 			{
-				$this->create();
+				throw new Exception(sprintf('Trying to call <em>%s</em> on a non-existent result.', __METHOD__));
 			}
 		}
 		else
