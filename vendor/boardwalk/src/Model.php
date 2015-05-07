@@ -200,6 +200,7 @@ abstract class Model
 	 */
 	public function find($id, $column = 'id')
 	{	
+		/*
 		$table = $this->secure($this->table);
 		$column = $this->secure($column);
 		$id = $this->secure($id);
@@ -223,6 +224,34 @@ abstract class Model
 			}
 
 			return $output;
+		}
+		*/
+
+		$table = $this->secure($this->table);
+		$column = $this->secure($column);
+		$id = $this->secure($id);
+		$raw = "SELECT * FROM `%s` WHERE `%s` = '%s'";
+		$query = sprintf($raw, $table, $column, $id);
+		$result = $this->connection->query($query);
+
+		if(!$result)
+		{
+			throw new SQLException($this->connection);
+		}
+		else
+		{
+			$newInstance = new $this;
+			$records = $result->fetch_assoc();
+
+			if(is_array($records) && count($records) > 0)
+			{
+				foreach($records as $key => $value)
+				{
+					$newInstance->{$key} = $value;
+				}
+			}
+			
+			return $newInstance;
 		}
 	}
 
@@ -353,62 +382,44 @@ abstract class Model
 
 	/**
 	 * The update method takes the attributes defined in $attributes and builds an update query with them,
-	 * executes it and returns the result
+	 * executes it and returns the result. It also checks if the result has a 'id', if so it does an update,
+	 * if it doesn't it does a create.
 	 *
-	 * @param string $whereKey The 1st part of the WHERE clause
-	 * @param string $whereOperator The 2nd part of the WHERE clause (the operator)
-	 * @param string $whereValue The 3rd part of the WHERE clause
-	 * @throws InvalidArgumentException
 	 * @throws Boardwalk\Exceptions\SQLException
 	 * @return mixed
 	 */
-	public function update($whereKey, $whereOperator, $whereValue, $limitStart = null, $limitEnd = null)
+	public function update()
 	{
-		$query = 'UPDATE `' . $this->table . '` SET ';
-
 		if(count($this->attributes) > 0)
 		{
-			foreach($this->attributes as $key => $value)
+			if(array_key_exists('id', $this->attributes))
 			{
-				$key = $this->secure($key);
-				$value = $this->secure($value);
-				$query .= "`" . $key . "` = '" . $value . "', ";
+				$raw = "UPDATE `%s` SET ";
+				$args = array($this->secure($this->table));
+
+				foreach($this->attributes as $key => $value)
+				{
+					$raw .= "`%s` = '%s', ";
+					$args[] = $key;
+					$args[] = $value;
+				}
+
+				$raw = rtrim(rtrim($raw), ',') . " WHERE `id` = '%s'";
+				$args[] = $this->secure($this->attributes['id']);
+				$query = vsprintf($raw, $args);
+				$result = $this->connection->query($query);
+
+				if(!$result)
+				{
+					throw new SQLException($this->connection);
+				}
+
+				return $result;
 			}
-
-			$query = rtrim(rtrim($query), ',') . ' WHERE `' . $whereKey . '` ' . $whereOperator . " '" . $whereValue . "' ";
-
-			if(!is_null($limitStart) && is_int($limitStart) && !is_null($limitEnd) && is_int($limitEnd))
+			else
 			{
-				if(is_int($limitStart) && is_int($limitEnd))
-				{
-					$query .= 'LIMIT ' . $limitStart . ', ' . $limitEnd;
-				}
-				else
-				{
-					throw new InvalidArgumentException(__METHOD__ . ' expects integers for limitStart and limitEnd but was given a ' . gettype($limitStart) . ' and a ' . gettype($limitEnd));
-				}
+				$this->create();
 			}
-			
-			if(!is_null($limitStart) && is_null($limitEnd))
-			{
-				if(is_int($limitStart))
-				{
-					$query .= 'LIMIT ' . $limitStart;
-				}
-				else
-				{
-					throw new InvalidArgumentException(__METHOD__ . ' expects an interger for limitStart but was given a ' . gettype($limitStart));
-				}
-			}
-			
-			$result = $this->connection->query($query);
-
-			if(!$result)
-			{
-				throw new SQLException($this->connection);
-			}
-
-			return $result;
 		}
 		else
 		{
