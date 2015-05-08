@@ -100,6 +100,11 @@
 			<h2>Stacktrace</h2>
 			<pre><?php print $trace;?></pre>
 
+			<?php if(strlen($other) > 0) : ?>
+			<h2>Andere info</h2>
+			<pre><?php print $other;?></pre>
+			<?php endif;?>
+
 			<?php if(strlen($previous) > 0) : ?>
 			<h2>Oudere stacktrace</h2>
 			<pre><?php print $previous;?></pre>

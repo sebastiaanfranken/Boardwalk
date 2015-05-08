@@ -12,7 +12,7 @@ class DatabaseDemo extends Controller
 	{
 		$log = new Log();
 		$variables = array(
-			'loglines' => $log->fetchAll(),
+			'loglines' => $log->all(),
 			'counter' => $log->count(),
 			'uniqueCounter' => $log->countDistinct('timestamp')
 		);
@@ -45,8 +45,10 @@ class DatabaseDemo extends Controller
 	public function getQuery()
 	{
 		$log = new Log();
-		$raw = 'DESCRIBE `%s`';
 
-		return pr($log->find(1));
+		return pr(
+			$log->get('request_method', '=', 'GET')->toObject()
+		);
+		//return pr($log->get('request_method', '=', 'GET'));
 	}
 }

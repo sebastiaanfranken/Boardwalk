@@ -40,6 +40,15 @@ abstract class Model
 	protected $attributes = array();
 
 	/**
+	 * @var boolean $singular Are we a result of a query and do we only have one result?
+	 * 
+	 * @see find()
+	 * @see get()
+	 * @access protected
+	 */
+	protected $singular = true;
+
+	/**
 	 * The constructor creates a new Database instance and tries to set the
 	 * table variable depending on the called class name (plural).
 	 *
@@ -108,6 +117,46 @@ abstract class Model
 	public function __destruct()
 	{
 		// Does nothing for now
+	}
+
+	/**
+	 * Returns the values in $attributes as a stdClass
+	 *
+	 * @return mixed
+	 */
+	public function toObject()
+	{
+		$object = new stdClass;
+
+		if(count($this->attributes) > 0)
+		{
+			$rowCounter = 0;
+
+			foreach($this->attributes as $row)
+			{
+				$object->{$rowCounter} = (object)$row;
+				$rowCounter++;
+			}
+
+			return $object;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns $attributes if it's set, otherwise it returns false
+	 *
+	 * @return mixed
+	 */
+	public function toArray()
+	{
+		if(count($this->attributes) > 0)
+		{
+			return $this->attributes;
+		}
+
+		return false;
 	}
 
 	/**
@@ -194,7 +243,7 @@ abstract class Model
 	 * Finds all records that have this ID set
 	 *
 	 * @param int $id The ID to use
-	 * @param string $column The ID column, defines to "id"
+	 * @param string $column The ID column, defaults to "id"
 	 * @throws Boardwalk\Exceptions\SQLException
 	 * @return mysqli_result
 	 */
@@ -209,7 +258,7 @@ abstract class Model
 
 		if(!$result)
 		{
-			throw new SQLException($this->connection);
+			throw new SQLException($this->connection, $query);
 		}
 		else
 		{
@@ -222,6 +271,50 @@ abstract class Model
 				{
 					$newInstance->{$key} = $value;
 				}
+			}
+			
+			return $newInstance;
+		}
+	}
+
+	/**
+	 * Does the same as find, only with a larger result set
+	 *
+	 * @param string $column The column to use in the query
+	 * @param string $operator The operator
+	 * @param string $key The key to use in the query
+	 * @return mixed
+	 * @throws Boardwalk\Exceptions\SQLException
+	 */
+	public function get($column, $operator, $key)
+	{
+		/*
+		 * Let the class know we have more than one row in $attributes
+		 */
+		$this->singular = false;
+
+		$table = $this->secure($this->table);
+		$column = $this->secure($column);
+		$operator = $this->secure($operator);
+		$key = $this->secure($key);
+		
+		$raw = "SELECT * FROM `%s` WHERE `%s` %s '%s'";
+		$query = sprintf($raw, $table, $column, $operator, $key);
+		$result = $this->connection->query($query);
+		
+		if(!$result)
+		{
+			throw new SQLException($this->connection, $query);
+		}
+		else
+		{
+			$newInstance = new $this;
+			$rowCounter = 0;
+			
+			while($row = $result->fetch_assoc())
+			{
+				$newInstance->{$rowCounter} = $row;
+				$rowCounter++;
 			}
 			
 			return $newInstance;
@@ -256,7 +349,7 @@ abstract class Model
 	 * @see fetch()
 	 * @return stdClass
 	 */
-	public function fetchAll()
+	public function all()
 	{
 		$results = $this->fetch();
 		$output = new stdClass;
@@ -329,32 +422,46 @@ abstract class Model
 	 */
 	public function create()
 	{
-		if(count($this->attributes) > 0)
+		if($this->singular)
 		{
-			$raw = "INSERT INTO `%s` SET ";
-			$args = array($this->secure($this->table));
-
-			foreach($this->attributes as $key => $value)
+			if(count($this->attributes) > 0)
 			{
-				$raw .= "`%s` = '%s', ";
-				$args[] = $key;
-				$args[] = $value;
+				$raw = "INSERT INTO `%s` SET ";
+				$args = array($this->secure($this->table));
+
+				foreach($this->attributes as $key => $value)
+				{
+					if(is_array($value))
+					{
+						continue;
+					}
+					else
+					{
+						$raw .= "`%s` = '%s', ";
+						$args[] = $key;
+						$args[] = $value;
+					}
+				}
+
+				$raw = rtrim(rtrim($raw), ',');
+				$query = vsprintf($raw, $args);
+				$result = $this->connection->query($query);
+
+				if(!$result)
+				{
+					throw new SQLException($this->connection);
+				}
+
+				return $result;
 			}
-
-			$raw = rtrim(rtrim($raw), ',');
-			$query = vsprintf($raw, $args);
-			$result = $this->connection->query($query);
-
-			if(!$result)
+			else
 			{
-				throw new SQLException($this->connection);
+				throw new Exception(sprintf('No attributes passed to the model at <em>%s</em>', __METHOD__));
 			}
-
-			return $result;
 		}
 		else
 		{
-			throw new Exception(sprintf('No attributes passed to the model at <em>%s</em>', __METHOD__));
+			throw new Exception(sprintf("Invalid number of attributes passed to the model at <em>%s</em>", __METHOD__));
 		}
 	}
 
@@ -369,7 +476,7 @@ abstract class Model
 	 */
 	public function update()
 	{
-		if(count($this->attributes) > 0)
+		if(count($this->attributes) > 0 || !$this->singular)
 		{
 			if(array_key_exists('id', $this->attributes))
 			{

@@ -43,31 +43,6 @@ class ExceptionHandler
 	 *
 	 * @param Exception The exception to parse
 	 * @return void
-	 */
-	public function handle(Exception $exception)
-	{
-		$templatefile = __DIR__ . DIRECTORY_SEPARATOR . 'exception-template.php';
-
-		if(file_exists($templatefile))
-		{
-			$message = $exception->getMessage();
-			$code = $exception->getCode();
-			$file = $exception->getTrace()[0]['file'];
-			$line = $exception->getTrace()[0]['line'];
-			$trace = $exception->getTraceAsString();
-			$previous = $exception->getPrevious();
-			$exceptionType = get_class($exception);
-
-			require_once($templatefile);
-		}
-	}
-
-	/**
-	 * Loads a pretty HTML file and loads it with the exception data passed
-	 * to it in.
-	 *
-	 * @param Exception The exception to parse
-	 * @return void
 	 * @static
 	 */
 	public static function handleStatic(Exception $exception)
@@ -83,6 +58,7 @@ class ExceptionHandler
 			$trace = $exception->getTraceAsString();
 			$previous = $exception->getPrevious();
 			$exceptionType = get_class($exception);
+			$other = method_exists($exception, 'getOther') ? $exception->getOther() : null;
 
 			require_once($templatefile);
 		}

@@ -14,8 +14,20 @@ use mysqli;
 
 class SQLException extends Exception
 {
-	public function __construct(mysqli $connection)
+	private $other;
+
+	public function __construct(mysqli $connection, $query = null)
 	{
+		if(!is_null($query))
+		{
+			$this->other = $query;
+		}
+
 		parent::__construct($connection->error, $connection->errno);
+	}
+
+	public function getOther()
+	{
+		return $this->other;
 	}
 }
