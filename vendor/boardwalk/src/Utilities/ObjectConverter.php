@@ -62,4 +62,15 @@ class ObjectConverter
 	{
 		return (array)$input;
 	}
+
+	/**
+	 * This converts $input to a JSON string
+	 *
+	 * @param mixed $input The input to convert to a string
+	 * @return string
+	 */
+	public static function toJSON($input)
+	{
+		return json_encode($input);
+	}
 }

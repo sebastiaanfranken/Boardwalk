@@ -12,6 +12,7 @@ namespace Boardwalk\Utilities;
 
 use stdClass;
 use Countable;
+use Boardwalk\Utilities\ObjectConverter;
 
 class GenericObject extends stdClass implements Countable
 {
@@ -152,6 +153,6 @@ class GenericObject extends stdClass implements Countable
 	 */
 	public function toJSON()
 	{
-		return json_encode($this->all());
+		return ObjectConverter::toJSON($this->all());
 	}
 }
