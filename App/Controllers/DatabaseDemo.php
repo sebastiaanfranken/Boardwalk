@@ -47,8 +47,7 @@ class DatabaseDemo extends Controller
 		$log = new Log();
 
 		return pr(
-			$log->get('request_method', '=', 'GET')->toObject()
+			$log->get('request_method', '=', 'GET')->toObject()->all()
 		);
-		//return pr($log->get('request_method', '=', 'GET'));
 	}
 }

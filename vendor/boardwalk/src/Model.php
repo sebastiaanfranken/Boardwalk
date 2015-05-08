@@ -35,19 +35,16 @@ abstract class Model
 	protected $table;
 
 	/**
+	 * @var int $tableColumnCount Count the number of columns in the table
+	 * @access protected
+	 */
+	protected $tableColumnCount = 0;
+
+	/**
 	 * @var array $attributes Stores attributes set after initialization through __set 
 	 * @access protected
 	 */
 	protected $attributes = array();
-
-	/**
-	 * @var boolean $singular Are we a result of a query and do we only have one result?
-	 * 
-	 * @see find()
-	 * @see get()
-	 * @access protected
-	 */
-	protected $singular = true;
 
 	/**
 	 * The constructor creates a new Database instance and tries to set the
@@ -79,6 +76,10 @@ abstract class Model
 
 		$calledClass = explode('\\', get_called_class());
 		$this->table = strtolower(end($calledClass)) . 's';
+
+		$columnCountQuery = "SELECT COUNT(COLUMN_NAME) AS `counter` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'";
+		$query = sprintf($columnCountQuery, $dbConfig['database'], $this->table);
+		$this->tableColumnCount = $this->connection->query($query)->fetch_object()->counter;
 	}
 
 	/**
@@ -127,7 +128,6 @@ abstract class Model
 	 */
 	public function toObject()
 	{
-		//$object = new stdClass;
 		$object = new GenericObject();
 
 		if(count($this->attributes) > 0)
@@ -140,7 +140,7 @@ abstract class Model
 				$rowCounter++;
 			}
 
-			return $object->attributes();
+			return $object;
 		}
 
 		return false;
@@ -290,11 +290,6 @@ abstract class Model
 	 */
 	public function get($column, $operator, $key)
 	{
-		/*
-		 * Let the class know we have more than one row in $attributes
-		 */
-		$this->singular = false;
-
 		$table = $this->secure($this->table);
 		$column = $this->secure($column);
 		$operator = $this->secure($operator);
@@ -424,46 +419,39 @@ abstract class Model
 	 */
 	public function create()
 	{
-		if($this->singular)
+		if(count($this->attributes) > 0)
 		{
-			if(count($this->attributes) > 0)
+			$raw = "INSERT INTO `%s` SET ";
+			$args = array($this->secure($this->table));
+
+			foreach($this->attributes as $key => $value)
 			{
-				$raw = "INSERT INTO `%s` SET ";
-				$args = array($this->secure($this->table));
-
-				foreach($this->attributes as $key => $value)
+				if(is_array($value))
 				{
-					if(is_array($value))
-					{
-						continue;
-					}
-					else
-					{
-						$raw .= "`%s` = '%s', ";
-						$args[] = $key;
-						$args[] = $value;
-					}
+					continue;
 				}
-
-				$raw = rtrim(rtrim($raw), ',');
-				$query = vsprintf($raw, $args);
-				$result = $this->connection->query($query);
-
-				if(!$result)
+				else
 				{
-					throw new SQLException($this->connection);
+					$raw .= "`%s` = '%s', ";
+					$args[] = $key;
+					$args[] = $value;
 				}
-
-				return $result;
 			}
-			else
+
+			$raw = rtrim(rtrim($raw), ',');
+			$query = vsprintf($raw, $args);
+			$result = $this->connection->query($query);
+
+			if(!$result)
 			{
-				throw new Exception(sprintf('No attributes passed to the model at <em>%s</em>', __METHOD__));
+				throw new SQLException($this->connection);
 			}
+
+			return $result;
 		}
 		else
 		{
-			throw new Exception(sprintf("Invalid number of attributes passed to the model at <em>%s</em>", __METHOD__));
+			throw new Exception(sprintf('No attributes passed to the model at <em>%s</em>', __METHOD__));
 		}
 	}
 
@@ -478,7 +466,7 @@ abstract class Model
 	 */
 	public function update()
 	{
-		if(count($this->attributes) > 0 || !$this->singular)
+		if(count($this->attributes) > 0)
 		{
 			if(array_key_exists('id', $this->attributes))
 			{
