@@ -17,6 +17,7 @@ use Boardwalk\Exceptions\SQLConnectionException;
 use mysqli;
 use stdClass;
 use Boardwalk\Utilities\Text;
+use Boardwalk\Utilities\GenericObject;
 
 abstract class Model
 {
@@ -126,7 +127,8 @@ abstract class Model
 	 */
 	public function toObject()
 	{
-		$object = new stdClass;
+		//$object = new stdClass;
+		$object = new GenericObject();
 
 		if(count($this->attributes) > 0)
 		{
@@ -138,7 +140,7 @@ abstract class Model
 				$rowCounter++;
 			}
 
-			return $object;
+			return $object->attributes();
 		}
 
 		return false;
