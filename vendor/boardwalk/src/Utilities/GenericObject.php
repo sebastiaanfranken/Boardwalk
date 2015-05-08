@@ -141,7 +141,17 @@ class GenericObject extends stdClass implements Countable
 		}
 		else
 		{
-			return $this->all();
+			return null;
 		}
+	}
+
+	/**
+	 * Converts the $attributes to a JSON string
+	 *
+	 * @return string
+	 */
+	public function toJSON()
+	{
+		return json_encode($this->all());
 	}
 }
