@@ -77,9 +77,19 @@ abstract class Model
 		$calledClass = explode('\\', get_called_class());
 		$this->table = strtolower(end($calledClass)) . 's';
 
-		$columnCountQuery = "SELECT COUNT(COLUMN_NAME) AS `counter` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'";
-		$query = sprintf($columnCountQuery, $dbConfig['database'], $this->table);
-		$this->tableColumnCount = $this->connection->query($query)->fetch_object()->counter;
+		// $columnCountQuery = "SELECT COUNT(COLUMN_NAME) AS `counter` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'";
+		// $query = sprintf($columnCountQuery, $dbConfig['database'], $this->table);
+		// $this->tableColumnCount = $this->connection->query($query)->fetch_object()->counter;
+
+		$columnCountQuery = "SELECT COUNT(`COLUMN_NAME`) AS `counter` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?";
+		$query = $this->connection->prepare($columnCountQuery);
+		$query->bind_param('ss', $dbConfig['database'], $this->table);
+		$query->execute();
+		$query = $query->get_result();
+
+		$this->tableColumnCount = $query->fetch_object()->counter;
+
+		$query->close();
 	}
 
 	/**
@@ -264,18 +274,18 @@ abstract class Model
 		}
 		else
 		{
-			$newInstance = new $this;
+			$storage = new GenericObject();
 			$records = $result->fetch_assoc();
 
 			if(is_array($records) && count($records) > 0)
 			{
 				foreach($records as $key => $value)
 				{
-					$newInstance->{$key} = $value;
+					$storage->{$key} = $value;
 				}
 			}
-			
-			return $newInstance;
+
+			return $storage->all();
 		}
 	}
 
@@ -305,16 +315,16 @@ abstract class Model
 		}
 		else
 		{
-			$newInstance = new $this;
+			$storage = new GenericObject();
 			$rowCounter = 0;
-			
+
 			while($row = $result->fetch_assoc())
 			{
-				$newInstance->{$rowCounter} = $row;
+				$storage->{$rowCounter} = $row;
 				$rowCounter++;
 			}
-			
-			return $newInstance;
+
+			return $storage;
 		}
 	}
 
@@ -382,7 +392,7 @@ abstract class Model
 		$orderField = $this->secure($column);
 		$query = sprintf($raw, $this->secure($this->table), $orderField, $order);
 		$result = $this->connection->query($query);
-		$output = new stdClass;
+		$output = new GenericObject();
 		$counter = 0;
 
 		if(!$result)
@@ -405,7 +415,7 @@ abstract class Model
 
 			$result->free();
 
-			return $output;
+			return $output->all();
 		}
 	}
 

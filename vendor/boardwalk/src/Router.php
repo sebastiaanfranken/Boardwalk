@@ -243,7 +243,7 @@ class Router
 		$controller = $routingtable[$routes[0]];
 		$controller = $controller[$routes[1]];
 		$controller = $controller[$this->requestMethod];
-		$controller = array_shift($controller);
+		$controller = $controller[0];
 
 		return $controller;
 	}

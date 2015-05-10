@@ -40,7 +40,7 @@ spl_autoload_register(function($class) {
 		else
 		{
 			ini_set('display_errors', 'On');
-			trigger_error('The requested file <em>' . $file . '</em> was not found', E_USER_ERROR);
+			trigger_error('The requested file <em>' . $file . '</em> was not found. Full calling class <em>' . $class . '</em>', E_USER_ERROR);
 		}
 	}
 	else

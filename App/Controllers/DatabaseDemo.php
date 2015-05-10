@@ -46,8 +46,10 @@ class DatabaseDemo extends Controller
 	{
 		$log = new Log();
 
+		print pr($log->fetchOrderdBy('timestamp'));
+
 		return pr(
-			$log->get('request_method', '=', 'GET')->toObject()->all()
+			$log->get('request_method', '=', 'GET')->all()
 		);
 	}
 }

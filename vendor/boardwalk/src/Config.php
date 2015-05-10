@@ -43,6 +43,18 @@ class Config
 			throw new FileNotFoundException(config() . 'application.php');
 		}
 	}
+	
+	/**
+	 * Boolean check to see if the required key already exists
+	 *
+	 * @param string $key
+	 * @static
+	 * @return bool
+	 */
+	public static function defined($key)
+	{
+		return defined('APP_' . strtoupper($key)) ? true : false;
+	}
 
 	/**
 	 * Gets a key, if it's set.
@@ -53,7 +65,8 @@ class Config
 	 */
 	public static function get($key)
 	{
-		return defined('APP_' . strtoupper($key)) ? constant('APP_' . strtoupper($key)) : false;
+		//return defined('APP_' . strtoupper($key)) ? constant('APP_' . strtoupper($key)) : false;
+		return self::defined($key) ? constant('APP_' . strtoupper($key)) : false;
 	}
 
 	/**
@@ -67,7 +80,8 @@ class Config
 	 */
 	public static function set($key, $value)
 	{
-		if(defined('APP_' . strtoupper($key)))
+		//if(defined('APP_' . strtoupper($key)))
+		if(self::defined($key))
 		{
 			$message = 'Cannot (re)set the value of <em>%s</em> (%s) after it has been set.';
 			throw new Exception(sprintf($message, $key, 'APP_' . strtoupper($key)));
