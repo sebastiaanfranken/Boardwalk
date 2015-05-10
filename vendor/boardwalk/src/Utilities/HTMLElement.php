@@ -32,13 +32,16 @@ abstract class HTMLElement
 	/*
 	 * Builds a new DOMDocument and appends a HTML tag to it
 	 */
-	public function __construct()
+	public function __construct($create = true)
 	{
-		$element = strtolower(get_called_class());
-		
 		$this->dom = new DOMDocument('1.0', 'utf-8');
-		$this->element = $this->dom->createElement($element);
-		$this->dom->appendChild($this->element);
+
+		if($create)
+		{
+			$element = strtolower(get_called_class());
+			$this->element = $this->dom->createElement($element);
+			$this->dom->appendChild($this->element);
+		}
 	}
 	
 	/**
