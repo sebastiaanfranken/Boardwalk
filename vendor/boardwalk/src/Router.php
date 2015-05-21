@@ -1,272 +1,265 @@
 <?php
-
-/**
- * The main router for the entire system
- *
- * @package Boardwalk
- * @author Sebastiaan Franken <sebastiaan@sebastiaanfranken.nl>
- */
-
 namespace Boardwalk;
 
 use Exception;
-use Boardwalk\Exceptions\FileNotFoundException;
-use Boardwalk\Utilities\ObjectConverter;
-use Boardwalk\Utilities\Text as TextUtility;
+use Traversable;
 
 class Router
 {
-	/**
-	 * @var string The request method
-	 * @access protected
-	 */
-	protected $requestMethod;
-
-	/**
-	 * @var string The request URI
-	 * @access protected
-	 */
-	protected $requestUri;
-
-	/**
-	 * @var string The controller (FQDN)
-	 * @access protected
-	 */
-	protected $controller;
-
-	/**
-	 * @var string The controller prefix for the FQDN controller name
-	 * @access protected
-	 */
-	protected $controllerPrefix = 'App\\Controllers\\';
-
-	/**
-	 * @var string The method
-	 * @access protected
-	 */
-	protected $method;
-
-	/**
-	 * @var array The arguments passed to the method
-	 * @access protected
-	 */
-	protected $arguments;
-
-	/**
-	 * @var string The output from the controller instance (called in the constructor)
-	 * @access protected
-	 */
-	protected $output;
+	protected $routes = array();
+	protected $namedRoutes = array();
+	protected $basePath = '';
+	protected $matchTypes = array(
+		'i'   => '[0-9]++',
+		'a'   => '[0-9A-Za-z]++',
+		'h'   => '[0-9A-Fa-f]++',
+		'*'   => '.+?',
+		'**'  => '.++',
+		''    => '[^/\.]++'
+	);
 	
-	/**
-	 * @var array The supported request methods.
-	 * @access protected
-	 */
-	protected $supportedRequestMethods = array();
-
-	/**
-	 * The constructor, loads the routes.php file and parses it.
-	 * Also parses the request and loads the correct method based
-	 * on the rules in routes.php
-	 *
-	 * @return void
-	 * @throws Boardwalk\Exceptions\FileNotFoundException If the routes config file doesn't exist
-	 * @throws Exception If the method doesn't exist in the controller
-	 * @throws Exception If the _REQUEST_METHOD and _REQUEST_URI variables aren't set
-	 * @throws Exception If the REQUEST_METHOD isn't supported (See supportedRequestMethods for that)
-	 */
-	public function __construct()
+	public function __construct(array $routes = array(), $basePath = '', $matchTypes = array())
 	{
-
-		/*
-		 * Check if the routes file exists and load it. If it doesn't throw a new exception
-		 */
-		if(file_exists(config() . 'routes.php'))
+		$this->addRoutes($routes);
+		$this->setBasePath($basePath);
+		$this->addMatchTypes($matchTypes);
+	}
+	
+	public function getRoutes()
+	{
+		return $this->routes;
+	}
+	
+	public function addRoutes($routes)
+	{
+		if(!is_array($routes) && !$routes instanceof Traversable)
 		{
-			$routes = include config() . 'routes.php';
-		}
-		else
-		{
-			throw new FileNotFoundException(config() . 'routes.php');
+			$message = '<em>%s</em> should be an array or an instance of Traversable.';
+			throw new Exception(sprintf($message, __CLASS__));
 		}
 		
-		if(file_exists(config() . 'application.php'))
+		foreach($routes as $route)
 		{
-			$applicationConfig = include config() . 'application.php';
-			$this->supportedRequestMethods = $applicationConfig['supportedRequestMethods'];
+			call_user_func_array(array($this, 'map'), $route);
 		}
-		else
+	}
+	
+	public function setBasePath($path)
+	{
+		$this->basePath = (string)$path;
+		return $this;
+	}
+	
+	public function addMatchTypes($types)
+	{
+		$this->matchTypes = array_merge($this->matchTypes, $types);
+	}
+	
+	public function map($method, $route, $target, $name = null)
+	{
+		$this->routes[] = array($method, $route, $target, $name);
+		
+		if(!is_null($name))
 		{
-			throw new FileNotFoundException(config() . 'application.php');
-		}
-
-		/*
-		 * Check if the $supportedRequestMethods is an array and if it's set
-		 */
-		if(!is_array($this->supportedRequestMethods) || count($this->supportedRequestMethods) == 0)
-		{
-			throw new Exception('The supportedRequestMethod attribute is not set or empty.');
-		}
-
-		/*
-		 * Check if it's a valid and legitimate request
-		 */
-		if(isset($_SERVER['REQUEST_METHOD']) && isset($_SERVER['REQUEST_URI']))
-		{
-			if(in_array($_SERVER['REQUEST_METHOD'], $this->supportedRequestMethods))
+			if(isset($this->namedRoutes[$name]))
 			{
-				$this->requestMethod = strtolower($_SERVER['REQUEST_METHOD']);
+				$message = 'Cannot redeclare route <em>%s</em>';
+				throw new Exception(sprintf($message, $name));
 			}
 			else
 			{
-				$message = 'The request method <em>%s</em> is currently not (yet) supported. The currently supported methods are %s';
-				$methods = TextUtility::arrayImplode($this->supportedRequestMethods);
-				throw new Exception(sprintf($message, $_SERVER['REQUEST_METHOD'], $methods));
+				$this->namedRoutes[$name] = $route;
+			}
+		}
+		
+		return;
+	}
+	
+	public function generate($routeName, array $params = array())
+	{
+		if(!isset($this->namedRoutes[$routeName]))
+		{
+			$message = 'Route <em>%s</em> does not exist.';
+			throw new Exception(sprintf($message, $routeName));
+		}
+		
+		$routes = $this->namedRoutes[$routeName];
+		$url = $this->basePath . $route;
+		
+		if(preg_match('`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`', $route, $matches, PREG_SET_ORDER))
+		{
+			foreach($matches as $match)
+			{
+				list($block, $pre, $type, $param, $optional) = $match;
+				
+				if($pre)
+				{
+					$block = substr($block, 1);
+				}
+				
+				if(isset($params[$param]))
+				{
+					$url = str_replace($block, $params[$param], $url);
+				}
+				elseif($optional)
+				{
+					$url = str_replace($pre . $block, '', $url);
+				}
+			}
+		}
+		
+		return $url;
+	}
+	
+	public function match($requestUrl = null, $requestMethod = null)
+	{
+		$params = array();
+		$match = false;
+		
+		if(is_null($requestUrl))
+		{
+			$requestUrl = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+		}
+		
+		$requestUrl = substr($requestUrl, strlen($this->basePath));
+		
+		if(($strpos = strpos($requestUrl, '?')) !== false)
+		{
+			$requestUrl = substr($requestUrl, 0, $strpos);
+		}
+		
+		if(is_null($requestMethod))
+		{
+			$requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+		}
+		
+		$_REQUEST = array_merge($_GET, $_POST);
+		
+		foreach($this->routes as $handler)
+		{
+			list($method, $_route, $target, $name) = $handler;
+			$methods = explode('|', $method);
+			$methodMatch = false;
+			
+			foreach($methods as $method)
+			{
+				if(strcasecmp($requestMethod, $method) === 0)
+				{
+					$methodMatch = true;
+					break;
+				}
 			}
 			
-			$this->requestUri = $_SERVER['REQUEST_URI'];
-			$parts = explode('/', $this->requestUri);
-			$parts = array_values(array_filter($parts));
-
-			if(count($parts) > 0)
+			if(!$methodMatch)
 			{
-				$method = $this->getMethodFromRoutes($parts);
-				$controller = $this->getControllerFromRoutes($parts);
-
-				$this->controller = $this->controllerPrefix . $controller;
-				$this->method = $method;
-				$this->arguments = (count($parts) == 3) ? $parts[3] : array();
+				continue;
+			}
+			
+			if($_route === '*')
+			{
+				$match = true;
+			}
+			elseif(isset($_route[0]) && $_route[0] === '@')
+			{
+				$pattern = '`' . substr($_route, 1) . '`u';
+				$match = preg_match($pattern, $requestUrl, $params);
 			}
 			else
 			{
-				$controller = $routes['index'][$this->requestMethod][0];
-				$method = $routes['index'][$this->requestMethod][1];
-
-				$this->controller = $this->controllerPrefix . $controller;
-				$this->method = $method;
-				$this->arguments = array();
+				$route = null;
+				$regex = false;
+				$j = 0;
+				$n = isset($_route[0]) ? $_route[0] : null;
+				$i = 0;
+				
+				while(true)
+				{
+					if(!isset($_route[$i]))
+					{
+						break;
+					}
+					elseif(false === $regex)
+					{
+						$c = $n;
+						$regex = $c === '[' || $c === '(' || $c === '.';
+						
+						if(false === $regex && false !== isset($_route[$i]))
+						{
+							$n = $_route[$i + 1];
+							$regex = $n === '?' || $n === '+' || $n === '*' || $n === '{';
+						}
+						
+						if(false === $regex && $c === '/' && (!isset($requestUrl[$j]) || $c !== $requestUrl[$j]))
+						{
+							continue 2;
+						}
+						
+						$j++;
+					}
+					
+					$route .= $_route[$i++];
+				}
+				
+				$regex = $this->compileRoute($route);
+				$match = preg_match($regex, $requestUrl, $params);
 			}
-
-			if(method_exists($this->controller, $this->method))
+			
+			if(($match == true || $match > 0))
 			{
-				$instance = new $this->controller;
-
-				/*
-				 * Check if the instance has a before method
-				 */
-				if(method_exists($instance, 'before'))
+				if((is_array($params) && count($params) > 0) || ($params instanceof Traversable && count($params) > 0))
 				{
-					$instance->before();
+					foreach($params as $key => $value)
+					{
+						if(is_numeric($key))
+						{
+							unset($params[$key]);
+						}
+					}
 				}
-
-				$fn = call_user_func_array(array($instance, $this->method), $this->arguments);
-
-				/*
-				 * Check if the instance has an after method
-				 */
-				if(method_exists($instance, 'after'))
-				{
-					$instance->after();
-				}
-
-				if(is_string($fn))
-				{
-					$this->output = $fn;
-				}
-				else
-				{
-					throw new Exception(sprintf('The method <em>%s</em> does not return a string.', $this->controller . '::' . $this->method));
-				}
+				
+				return array(
+					'target' => $target,
+					'params' => $params,
+					'name' => $name
+				);
 			}
-			else
+		}
+		
+		return false;
+	}
+	
+	private function compileRoute($route)
+	{
+		if(preg_match_all('`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`', $route, $matches, PREG_SET_ORDER))
+		{
+			$matchTypes = $this->matchTypes;
+			
+			foreach($matchTypes as $match)
 			{
-				throw new Exception(sprintf('The method <em>%s</em> does not exist in <em>%s</em>', $this->method, $this->controller));
+				list($block, $pre, $type, $param, $optional) = $match;
+				
+				if(isset($matchTypes[$type]))
+				{
+					$type = $matchTypes[$type];
+				}
+				
+				if($pre === '.')
+				{
+					$pre = '\.';
+				}
+				
+				$pattern =  '(?:' .
+							(strlen($pre) > 0 ? $pre : null) . 
+							'(' .
+							(strlen($param) > 0 ? '?P<' . $param . '>' : null) .
+							$type . 
+							'))' . 
+							(strlen($optional) > 0 ? '?' : null);
+							
+				$route = str_replace($block, $pattern, $route);
 			}
 		}
-		else
-		{
-			throw new Exception('Unclear request');
-		}
-	}
-
-	/**
-	 * Get the method to call from the routes.php config file
-	 * based on the routes (array) given
-	 *
-	 * @param array $routes The section of routes to use for filtering
-	 * @return string
-	 * @todo Add error handling if a method doesn't exist
-	 */
-	public function getMethodFromRoutes(array $routes)
-	{
-		if(count($routes) == 1)
-		{
-			$routes[] = 'index';
-		}
-
-		$routingtable = require config() . 'routes.php';
-		$routing = ObjectConverter::toObject($routingtable);
-
-		/*
-		 * Doing this in four steps to increase legability
-		 */
-
-		$method = $routing->{$routes[0]};
-		$method = $method->{$routes[1]};
-		$method = $method->{$this->requestMethod};
-		$method = end($method);
-
-		return $method;
-	}
-
-	/**
-	 * Get the controller to call from the routes.php config file
-	 * based on the routes (array) given.
-	 *
-	 * @param array $routes The section of routes to use for filtering
-	 * @return string
-	 * @todo Add error handling if a controller doesn't exist
-	 */
-	public function getControllerFromRoutes(array $routes)
-	{
-		if(count($routes) == 1)
-		{
-			$routes[] = 'index';
-		}
-
-		$routingtable = require config() . 'routes.php';
-
-		/*
-		 * Doing this in a few steps to increase legability
-		 */
-
-		$controller = $routingtable[$routes[0]];
-		$controller = $controller[$routes[1]];
-		$controller = $controller[$this->requestMethod];
-		$controller = $controller[0];
-
-		return $controller;
-	}
-
-	/**
-	 * Returns the output of this class, which is the response a route gives
-	 *
-	 * @return string
-	 */
-	public function response()
-	{
-		return $this->output;
-	}
-
-	/**
-	 * When the class is printed as a string call the respone function to output
-	 * something sane
-	 *
-	 * @return string
-	 * @see response()
-	 */
-	public function __toString()
-	{
-		return $this->response();
+		
+		return '`^' . $route . '$`u';
 	}
 }
