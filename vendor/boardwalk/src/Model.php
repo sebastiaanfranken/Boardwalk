@@ -320,7 +320,7 @@ abstract class Model
 
 			while($row = $result->fetch_assoc())
 			{
-				$storage->{$rowCounter} = $row;
+				$storage->{$rowCounter} = (object)$row;
 				$rowCounter++;
 			}
 

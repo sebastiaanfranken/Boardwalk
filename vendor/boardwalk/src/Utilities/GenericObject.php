@@ -34,9 +34,17 @@ class GenericObject extends stdClass implements Countable
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct($items = null)
 	{
-		$this->attributes = new stdClass;
+		if(is_null($items))
+		{
+			$this->attributes = new stdClass;
+		}
+		else
+		{
+			$this->attributes = (object)$items;
+			$this->attributesCounter = count($items, COUNT_RECURSIVE);
+		}
 	}
 
 	/**
