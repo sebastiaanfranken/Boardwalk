@@ -81,5 +81,26 @@ if(Boardwalk\Config::get('debug'))
 /*
  * Our router handles URL's nicely
  */
+# $router = new Boardwalk\Router();
+# print $router->response();
+
 $router = new Boardwalk\Router();
-print $router->response();
+//$router->map('GET', '/', 'Index@getIndex', 'home');
+
+if(file_exists(config() . 'routes.php'))
+{
+	$routes = include config() . 'routes.php';
+	$router->addRoutes($routes);
+}
+
+$routeMatch = $router->match();
+
+if(is_array($routeMatch) && count($routeMatch) > 0)
+{
+	print $router->handle($routeMatch);
+}
+else
+{
+	header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+}
+

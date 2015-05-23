@@ -1,33 +1,14 @@
 <?php
+
 return array(
-	'index' => array(
-		'get' => array('Index', 'getIndex')
-	),
-	'text-demo' => array(
-		'index' => array(
-			'get' => array('TextDemo', 'getIndex'),
-			'post' => array('TextDemo', 'postIndex')
-		)
-	),
-	'database-demo' => array(
-		'index' => array(
-			'get' => array('DatabaseDemo', 'getIndex'),
-			'post' => array('DatabaseDemo', 'postIndex')
-		),
-		'rekey' => array(
-			'get' => array('DatabaseDemo', 'getRekey')
-		),
-		'query' => array(
-			'get' => array('DatabaseDemo', 'getQuery')
-		)
-	),
-	'helpers-demo' => array(
-		'index' => array(
-			'get' => array('HelpersDemo', 'getIndex')
-		),
-		'convert' => array(
-			'get' => array('HelpersDemo', 'getConversion'),
-			'post' => array('HelpersDemo', 'postConversion')
-		)
-	)
+	array('GET', '/', 'Index@getIndex', 'home'),
+	array('GET', '/text-demo', 'TextDemo@getIndex'),
+	array('POST', '/text-demo', 'TextDemo@postIndex'),
+	array('GET', '/database-demo', 'DatabaseDemo@getIndex'),
+	array('POST', '/database-demo', 'DatabaseDemo@postIndex'),
+	array('GET', '/database-demo/rekey', 'DatabaseDemo@getRekey'),
+	array('GET', '/database-demo/query', 'DatabaseDemo@getQuery'),
+	array('GET', '/helpers-demo', 'HelpersDemo@getIndex'),
+	array('GET', '/helpers-demo/convert', 'HelpersDemo@getConversion'),
+	array('POST', '/helpers-demo/convert', 'HelpersDemo@postConversion')
 );

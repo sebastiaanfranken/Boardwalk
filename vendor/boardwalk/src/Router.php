@@ -183,7 +183,7 @@ class Router
 						$c = $n;
 						$regex = $c === '[' || $c === '(' || $c === '.';
 						
-						if(false === $regex && false !== isset($_route[$i]))
+						if(false === $regex && false !== isset($_route[$i + 1]))
 						{
 							$n = $_route[$i + 1];
 							$regex = $n === '?' || $n === '+' || $n === '*' || $n === '{';
@@ -261,5 +261,56 @@ class Router
 		}
 		
 		return '`^' . $route . '$`u';
+	}
+	
+	public function handle(array $input)
+	{
+		if(array_key_exists('target', $input))
+		{
+			$methodParts = explode('@', $input['target']);
+
+			if(count($methodParts) == 2)
+			{
+				$className = 'App\\Controllers\\' . $methodParts[0];
+				$classMethod = $methodParts[1];
+				$classInstance = new $className();
+
+				if(method_exists($classInstance, 'before'))
+				{
+					$classInstance->before();
+				}
+
+				$result = call_user_func_array(
+					array($classInstance, $classMethod),
+					$input['params']
+				);
+
+				if(method_exists($classInstance, 'after'))
+				{
+					$classInstance->after();
+				}
+
+				if(is_string($result))
+				{
+					return $result;
+				}
+				else
+				{
+					$exception = 'The method <em>%s</em> does not return a string.';
+					throw new Exception(sprintf($exception, $classMethod));
+				}
+			}
+			else
+			{
+				$exception = 'Invalid method defined: <em>%s</em>';
+				throw new Exception(sprintf($exception, $input['target']));
+			}
+		}
+		else
+		{
+			$exception = 'Maldefined route passed to <em>%s</em>: %s';
+			$method = implode(', ', $input);
+			throw new Exception(sprintf($exception, __METHOD__, $method));
+		}
 	}
 }
