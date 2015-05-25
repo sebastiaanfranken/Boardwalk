@@ -95,7 +95,7 @@ function timestamp($format = 'Y-m-d', $stamp = 'now')
  * @param bool $removeTrailingSlash Removes the trailing slash
  * @return string
  */
-function url($controller, $method = 'getIndex', $removeTrailingSlash = false)
+function url($controller, $method = 'getIndex', $removeTrailingSlash = true)
 {
 	if($controller == 'index' && $method == 'getIndex')
 	{

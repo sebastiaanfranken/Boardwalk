@@ -12,7 +12,7 @@
 		<main>
 			<h1>Database demo</h1>
 
-			<form method="post" action="<?php print url('DatabaseDemo', 'postIndex', true);?>">
+			<form method="post" action="/database-demo">
 				<input type="submit" name="delete" value="Wis bepaalde records" />
 				<a href="<?php print url('DatabaseDemo', 'getRekey');?>">Stel IDs opnieuw in</a>
 			</form>
